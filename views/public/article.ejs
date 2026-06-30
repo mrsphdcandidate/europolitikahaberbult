@@ -33,6 +33,14 @@
   var relatedArticles = typeof recentArticles !== 'undefined' ? recentArticles : [];
 %>
 
+<!-- Floating Share Bar for Desktop -->
+<div class="desktop-share-bar">
+  <button class="share-btn twitter" data-platform="twitter" type="button" title="𝕏 Twitter'da Paylaş">𝕏</button>
+  <button class="share-btn linkedin" data-platform="linkedin" type="button" title="LinkedIn'de Paylaş">in</button>
+  <button class="share-btn whatsapp" data-platform="whatsapp" type="button" title="WhatsApp'ta Paylaş">wa</button>
+  <button class="share-btn image-share btnShareAsImage" type="button" title="Görsel Olarak Paylaş">🖼️</button>
+</div>
+
 <article class="article-detail">
   <!-- Cover Image -->
   <div class="article-cover">
@@ -151,16 +159,47 @@
   </div>
 </div>
 
+<!-- Share Preview Modal -->
+<div id="sharePreviewModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 99999; opacity: 0; visibility: hidden; transition: all 0.3s ease; backdrop-filter: blur(8px);">
+  <div style="background: #FFFFFF; border-radius: 12px; max-width: 480px; width: 90%; max-height: 90vh; overflow-y: auto; padding: 24px; box-shadow: 0 15px 40px rgba(0,0,0,0.3); transform: scale(0.9); transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; box-sizing: border-box;" id="sharePreviewContent">
+    <h3 style="font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: #1A1A1A; margin: 0 0 6px 0;">Görsel Kartınız Hazır!</h3>
+    <p style="font-size: 13px; color: #718096; text-align: center; margin: 0 0 20px 0; font-family: 'Inter', sans-serif;">Aşağıdaki önizlemeden kontrol edebilir ve cihazınıza indirebilirsiniz.</p>
+    
+    <div id="sharePreviewImageContainer" style="width: 100%; border: 1px solid #E8E4DE; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 24px; text-align: center; background: #F8F7F4; line-height: 0;">
+      <!-- Dynamic generated img will be placed here -->
+    </div>
+    
+    <div style="display: flex; gap: 12px; width: 100%; font-family: 'Inter', sans-serif;">
+      <button id="btnDownloadPreview" style="flex: 1; padding: 12px 20px; background: #C53030; color: #fff; border: none; border-radius: 6px; font-weight: 600; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.2s;">
+        📥 Cihaza İndir
+      </button>
+      <button id="btnClosePreview" style="padding: 12px 20px; background: #E2E8F0; color: #4A5568; border: none; border-radius: 6px; font-weight: 600; font-size: 14px; cursor: pointer; transition: background 0.2s;">
+        Kapat
+      </button>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    const btnShare = document.getElementById('btnShareAsImage');
-    if (!btnShare) return;
+    // Select all trigger buttons (both the inline one and the floating desktop one)
+    const triggerButtons = document.querySelectorAll('#btnShareAsImage, .btnShareAsImage');
+    const modal = document.getElementById('sharePreviewModal');
+    const modalContent = document.getElementById('sharePreviewContent');
+    const previewContainer = document.getElementById('sharePreviewImageContainer');
+    const btnDownload = document.getElementById('btnDownloadPreview');
+    const btnClose = document.getElementById('btnClosePreview');
+    
+    let currentDataUrl = null;
 
-    btnShare.addEventListener('click', async () => {
-      btnShare.disabled = true;
-      const originalText = btnShare.innerHTML;
-      btnShare.innerHTML = '⏳ Hazırlanıyor...';
+    if (triggerButtons.length === 0) return;
+
+    // Open Modal and render image
+    const openShareModal = async (btn) => {
+      btn.disabled = true;
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '⏳ Hazırlanıyor...';
       
       const shareCard = document.getElementById('shareCardTemplate');
       
@@ -168,30 +207,66 @@
         const canvas = await html2canvas(shareCard, {
           allowTaint: true,
           useCORS: true,
-          scale: 2, // 2x resolution for crisp text
+          scale: 2, // 2x high resolution
           backgroundColor: '#F8F7F4'
         });
         
-        const dataUrl = canvas.toDataURL('image/png');
+        currentDataUrl = canvas.toDataURL('image/png');
         
-        const link = document.createElement('a');
-        link.download = '<%= article.slug %>-paylas.png';
-        link.href = dataUrl;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        // Populate modal preview image
+        previewContainer.innerHTML = '';
+        const img = document.createElement('img');
+        img.src = currentDataUrl;
+        img.style.maxWidth = '100%';
+        img.style.maxHeight = '50vh';
+        img.style.objectFit = 'contain';
+        img.alt = 'Paylaşım kartı önizleme';
+        previewContainer.appendChild(img);
         
-        if (window.showToast) {
-          window.showToast('Görsel kartı başarıyla indirildi!', 'success');
-        } else {
-          alert('Görsel kartı başarıyla indirildi!');
-        }
+        // Show Modal
+        modal.style.opacity = '1';
+        modal.style.visibility = 'visible';
+        modalContent.style.transform = 'scale(1)';
+        
       } catch (error) {
         console.error('Share Image Generation Failed:', error);
-        alert('Görsel oluşturulurken bir hata oluştu.');
+        alert('Görsel kartı oluşturulurken bir hata oluştu.');
       } finally {
-        btnShare.disabled = false;
-        btnShare.innerHTML = originalText;
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+      }
+    };
+
+    // Close Modal helper
+    const closeShareModal = () => {
+      modal.style.opacity = '0';
+      modal.style.visibility = 'hidden';
+      modalContent.style.transform = 'scale(0.9)';
+    };
+
+    // Bind triggers
+    triggerButtons.forEach(btn => {
+      btn.addEventListener('click', () => openShareModal(btn));
+    });
+
+    // Bind close actions
+    btnClose.addEventListener('click', closeShareModal);
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeShareModal();
+    });
+
+    // Bind download action
+    btnDownload.addEventListener('click', () => {
+      if (!currentDataUrl) return;
+      const link = document.createElement('a');
+      link.download = '<%= article.slug %>-paylas.png';
+      link.href = currentDataUrl;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      if (window.showToast) {
+        window.showToast('Görsel kartı başarıyla indirildi!', 'success');
       }
     });
   });

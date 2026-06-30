@@ -1016,3 +1016,81 @@ img {
     font-size: 16px;
   }
 }
+
+/* Floating sharing bar for desktop */
+@media (min-width: 1024px) {
+  .desktop-share-bar {
+    position: fixed;
+    top: 50%;
+    left: 40px;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    z-index: 1000;
+    animation: fadeInShareBar 0.5s ease-out;
+  }
+  
+  @keyframes fadeInShareBar {
+    from { opacity: 0; transform: translateY(-50%) translateX(-20px); }
+    to { opacity: 1; transform: translateY(-50%) translateX(0); }
+  }
+  
+  .desktop-share-bar .share-btn {
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    border: 1px solid #E8E4DE;
+    background: #FFFFFF;
+    color: #333;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+  
+  .desktop-share-bar .share-btn:hover {
+    background: #F8F7F4;
+    border-color: #ccc;
+    transform: scale(1.1);
+  }
+  
+  .desktop-share-bar .share-btn.twitter:hover {
+    background: #1A1A1A;
+    color: #fff;
+    border-color: #1A1A1A;
+  }
+  
+  .desktop-share-bar .share-btn.linkedin:hover {
+    background: #0077B5;
+    color: #fff;
+    border-color: #0077B5;
+  }
+  
+  .desktop-share-bar .share-btn.whatsapp:hover {
+    background: #25D366;
+    color: #fff;
+    border-color: #25D366;
+  }
+  
+  .desktop-share-bar .share-btn.image-share {
+    background: #C53030;
+    color: #fff;
+    border-color: #C53030;
+  }
+  
+  .desktop-share-bar .share-btn.image-share:hover {
+    background: #A62828;
+    border-color: #A62828;
+  }
+}
+
+@media (max-width: 1023px) {
+  .desktop-share-bar {
+    display: none;
+  }
+}
