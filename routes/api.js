@@ -224,4 +224,74 @@ router.post('/upload-card', (req, res) => {
   }
 });
 
+// Fetch financial data from Yahoo Finance endpoint
+const https = require('https');
+
+function fetchYahooFinance(symbol) {
+  return new Promise((resolve) => {
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=1d`;
+    
+    const options = {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'
+      }
+    };
+
+    https.get(url, options, (res) => {
+      let data = '';
+      res.on('data', (chunk) => { data += chunk; });
+      res.on('end', () => {
+        try {
+          const json = JSON.parse(data);
+          const result = json.chart?.result?.[0];
+          if (!result) return resolve(null);
+          
+          const meta = result.meta;
+          const price = meta.regularMarketPrice;
+          const prevClose = meta.chartPreviousClose || meta.previousClose;
+          const change = price - prevClose;
+          const changePercent = prevClose ? (change / prevClose) * 100 : 0;
+          
+          resolve({
+            symbol,
+            price,
+            changePercent,
+            currency: meta.currency
+          });
+        } catch (e) {
+          resolve(null);
+        }
+      });
+    }).on('error', () => {
+      resolve(null);
+    });
+  });
+}
+
+router.get('/market-data', async (req, res) => {
+  const symbols = [
+    'USDTRY=X', 'EURTRY=X', 'EURUSD=X', 
+    'XU100.IS', '^GSPC', '^IXIC', '^GDAXI', '^FTSE', 
+    'AAPL', 'TSLA', 'NVDA'
+  ];
+  
+  try {
+    const promises = symbols.map(sym => fetchYahooFinance(sym));
+    const results = await Promise.all(promises);
+    
+    const data = {};
+    results.forEach(item => {
+      if (item) {
+        data[item.symbol] = item;
+      }
+    });
+    
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    return res.json({ success: true, data });
+  } catch (error) {
+    console.error('Market data error:', error.message);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 module.exports = router;

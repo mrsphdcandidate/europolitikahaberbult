@@ -1099,21 +1099,21 @@ img {
 @media (min-width: 1200px) {
   .article-layout-container {
     display: grid;
-    grid-template-columns: 220px 680px 260px;
-    gap: 40px;
-    max-width: 1240px;
+    grid-template-columns: minmax(240px, 320px) 720px minmax(280px, 360px);
+    gap: 48px;
+    max-width: 1560px;
     margin: 0 auto;
     align-items: start;
     padding: 32px 24px;
   }
   
   .article-detail {
-    max-width: 680px;
+    max-width: 720px;
     margin: 0;
     padding: 0;
     border-left: 1px solid #E8E4DE;
     border-right: 1px solid #E8E4DE;
-    padding: 0 40px;
+    padding: 0 48px;
   }
   
   /* Hide floating bar since left sidebar has it */
