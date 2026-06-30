@@ -22,6 +22,7 @@ db.exec(`
     excerpt TEXT,
     content TEXT,
     cover_image TEXT,
+    social_image TEXT,
     category TEXT DEFAULT 'Genel',
     tags TEXT,
     status TEXT DEFAULT 'draft' CHECK(status IN ('draft', 'published')),
@@ -38,6 +39,13 @@ db.exec(`
     is_active INTEGER DEFAULT 1
   );
 `);
+
+// Run migrations
+try {
+  db.exec('ALTER TABLE articles ADD COLUMN social_image TEXT');
+} catch (e) {
+  // Column already exists, ignore
+}
 
 // --- Article helpers ---
 
@@ -60,10 +68,10 @@ function getArticleById(id) {
   return db.prepare('SELECT * FROM articles WHERE id = ?').get(id);
 }
 
-function createArticle({ title, slug, excerpt, content, cover_image, category, tags, status }) {
+function createArticle({ title, slug, excerpt, content, cover_image, social_image, category, tags, status }) {
   const stmt = db.prepare(`
-    INSERT INTO articles (title, slug, excerpt, content, cover_image, category, tags, status)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO articles (title, slug, excerpt, content, cover_image, social_image, category, tags, status)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
   const result = stmt.run(
     title,
@@ -71,6 +79,7 @@ function createArticle({ title, slug, excerpt, content, cover_image, category, t
     excerpt || null,
     content || null,
     cover_image || null,
+    social_image || null,
     category || 'Genel',
     tags || null,
     status || 'draft'
@@ -79,7 +88,7 @@ function createArticle({ title, slug, excerpt, content, cover_image, category, t
 }
 
 function updateArticle(id, fields) {
-  const allowedFields = ['title', 'slug', 'excerpt', 'content', 'cover_image', 'category', 'tags', 'status'];
+  const allowedFields = ['title', 'slug', 'excerpt', 'content', 'cover_image', 'social_image', 'category', 'tags', 'status'];
   const setClauses = [];
   const values = [];
 

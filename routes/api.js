@@ -196,4 +196,32 @@ router.post('/upload-url', async (req, res) => {
   }
 });
 
+// Save social card image endpoint
+router.post('/upload-card', (req, res) => {
+  const { slug, image } = req.body;
+  if (!slug || !image) {
+    return res.status(400).json({ success: false, message: 'Eksik parametreler.' });
+  }
+
+  try {
+    const cardsDir = path.join(__dirname, '..', 'public', 'uploads', 'cards');
+    if (!fs.existsSync(cardsDir)) {
+      fs.mkdirSync(cardsDir, { recursive: true });
+    }
+
+    // Strip header from dataUrl
+    const base64Data = image.replace(/^data:image\/png;base64,/, "");
+    const localPath = path.join(cardsDir, `${slug}.png`);
+
+    fs.writeFileSync(localPath, base64Data, 'base64');
+    
+    const url = `/uploads/cards/${slug}.png`;
+    return res.json({ success: true, url });
+
+  } catch (error) {
+    console.error('Social card saving error:', error.message);
+    return res.status(500).json({ success: false, message: `Sosyal kart kaydedilemedi: ${error.message}` });
+  }
+});
+
 module.exports = router;

@@ -596,21 +596,20 @@ function initAutoSave() {
 
     form.addEventListener('submit', async (e) => {
       if (formSubmitted) return;
+      e.preventDefault(); // Always prevent default first to run async tasks
+
+      // Show status on button
+      const submitBtn = form.querySelector('button[type="submit"]');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Kaydediliyor...';
+      }
 
       const contentEl = document.getElementById('content');
+      
+      // 1. Resolve inline images if placeholders exist
       if (contentEl && contentEl.value.includes('image-placeholder')) {
-        e.preventDefault();
-        
-        // Show status on button
-        const submitBtn = form.querySelector('button[type="submit"]');
-        const originalText = submitBtn ? submitBtn.textContent : 'Yayınla';
-        if (submitBtn) {
-          submitBtn.disabled = true;
-          submitBtn.textContent = 'Görseller Hazırlanıyor...';
-        }
-
-        showNotification('Haber içi görseller yerelleştiriliyor, lütfen bekleyin...', 'info');
-
+        showNotification('Haber içi görseller yerelleştiriliyor...', 'info');
         try {
           let html = contentEl.value;
           const parser = new DOMParser();
@@ -639,8 +638,6 @@ function initAutoSave() {
               }
 
               const fallbackUrl = `https://loremflickr.com/600/400/${chosenKeyword}`;
-              console.log(`[Submit Autodownload] Slot ${id} empty. Fetching stock image: ${fallbackUrl}`);
-              
               const response = await fetch('/api/upload-url', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -653,7 +650,6 @@ function initAutoSave() {
             }
 
             if (finalUrl) {
-              // Replace placeholder with img tag
               const img = doc.createElement('img');
               img.src = finalUrl;
               img.alt = prompt;
@@ -663,23 +659,84 @@ function initAutoSave() {
               ph.remove();
             }
           }
-
           contentEl.value = doc.body.innerHTML;
-          localStorage.removeItem(STORAGE_KEY);
-          formSubmitted = true;
-          form.submit();
-
         } catch (error) {
           console.error('Image resolving error on submit:', error);
-          showNotification('Görseller işlenirken bir hata oluştu, yine de kaydediliyor.', 'warning');
-          localStorage.removeItem(STORAGE_KEY);
-          formSubmitted = true;
-          form.submit();
         }
-      } else {
-        localStorage.removeItem(STORAGE_KEY);
       }
+
+      // 2. Generate and upload social sharing card image
+      try {
+        showNotification('Sosyal medya paylaşım kartı üretiliyor...', 'info');
+        await generateAndUploadSocialCard();
+      } catch (error) {
+        console.error('Social card error:', error);
+      }
+
+      // 3. Clear draft and submit
+      localStorage.removeItem(STORAGE_KEY);
+      formSubmitted = true;
+      form.submit();
     });
+  }
+}
+
+async function generateAndUploadSocialCard() {
+  const titleEl = document.getElementById('title');
+  if (!titleEl) return;
+
+  const title = titleEl.value;
+  const excerpt = document.getElementById('excerpt')?.value || '';
+  const category = document.getElementById('category')?.value || 'Genel';
+  const coverImage = document.getElementById('coverImage')?.value || '';
+
+  // Generate a clean slug
+  const cleanSlug = title.toLowerCase()
+    .replace(/ğ/g, 'g').replace(/ü/g, 'u').replace(/ş/g, 's')
+    .replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ç/g, 'c')
+    .replace(/[^a-z0-9 -]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+
+  const shareCard = document.getElementById('shareCardTemplate');
+  if (!shareCard) return;
+
+  // Populate card template values
+  shareCard.querySelector('.card-title').textContent = title;
+  shareCard.querySelector('.card-excerpt').textContent = excerpt;
+  shareCard.querySelector('.card-category').textContent = category;
+  shareCard.querySelector('.card-date').textContent = new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  const coverImg = shareCard.querySelector('.card-cover-img');
+  const coverContainer = shareCard.querySelector('.card-cover-container');
+  if (coverImage) {
+    coverImg.src = coverImage;
+    coverContainer.style.display = 'block';
+  } else {
+    coverImg.src = '';
+    coverContainer.style.display = 'none';
+  }
+
+  // Generate base64 via html2canvas
+  const canvas = await html2canvas(shareCard, {
+    useCORS: true,
+    allowTaint: true,
+    scale: 1.5,
+    backgroundColor: '#F8F7F4'
+  });
+  const dataUrl = canvas.toDataURL('image/png');
+
+  const res = await fetch('/api/upload-card', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ slug: cleanSlug, image: dataUrl })
+  });
+  const data = await res.json();
+  if (data.success) {
+    const socialImageInput = document.getElementById('socialImage');
+    if (socialImageInput) {
+      socialImageInput.value = data.url;
+    }
   }
 }
 
