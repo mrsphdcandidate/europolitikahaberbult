@@ -611,6 +611,12 @@ img {
   border-color: #25D366;
 }
 
+.share-btn.image-share:hover {
+  background: #A62828;
+  color: #fff;
+  border-color: #A62828;
+}
+
 /* ===================================
    Related Articles
    =================================== */

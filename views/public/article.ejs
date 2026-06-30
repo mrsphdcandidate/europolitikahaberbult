@@ -78,6 +78,9 @@
       <button class="share-btn whatsapp" data-platform="whatsapp" type="button">
         WhatsApp'ta Paylaş
       </button>
+      <button class="share-btn image-share" id="btnShareAsImage" type="button" style="background-color: #C53030; color: white; border-color: #C53030;">
+        🖼️ Görsel Olarak Paylaş
+      </button>
     </div>
   </div>
 </article>
@@ -118,5 +121,80 @@
   </div>
 </div>
 <% } %>
+
+<!-- Hidden container for generating shareable image card -->
+<div id="shareCardTemplate" style="position: absolute; left: -9999px; top: -9999px; width: 600px; background-color: #F8F7F4; padding: 40px; box-sizing: border-box; border: 4px solid #C53030; border-radius: 12px; font-family: 'Inter', sans-serif;">
+  <div style="text-align: center; border-bottom: 2px solid #E8E4DE; padding-bottom: 15px; margin-bottom: 25px;">
+    <span style="font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 900; letter-spacing: 2px; color: #1A1A1A;">EURO<span style="color: #C53030;">POLITIKA</span></span>
+    <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 3px; color: #718096; margin-top: 4px;">Politik Ekonomi Bülteni</div>
+  </div>
+  
+  <% if (article.category) { %>
+    <div style="font-size: 12px; font-weight: 700; color: #C53030; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px;"><%= article.category %></div>
+  <% } %>
+  
+  <h1 style="font-family: 'Playfair Display', serif; font-size: 28px; line-height: 1.35; color: #1A1A1A; margin-bottom: 20px; font-weight: 800;"><%= article.title %></h1>
+  
+  <% if (article.cover_image) { %>
+    <div style="width: 100%; height: 300px; border-radius: 8px; overflow: hidden; margin-bottom: 25px; border: 1px solid #E8E4DE;">
+      <img src="<%= article.cover_image %>" style="width: 100%; height: 100%; object-fit: cover;" crossorigin="anonymous">
+    </div>
+  <% } %>
+  
+  <div style="font-size: 15px; line-height: 1.6; color: #333; margin-bottom: 30px; font-weight: 400;">
+    <%= article.excerpt || (article.content ? truncate(article.content.replace(/<[^>]*>/g, ''), 250) : '') %>
+  </div>
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #E8E4DE; padding-top: 20px;">
+    <div style="font-size: 12px; color: #718096;"><%= formatDate(article.published_at || article.created_at) %></div>
+    <div style="font-size: 13px; font-weight: 600; color: #1A1A1A;">europolitika.up.railway.app</div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const btnShare = document.getElementById('btnShareAsImage');
+    if (!btnShare) return;
+
+    btnShare.addEventListener('click', async () => {
+      btnShare.disabled = true;
+      const originalText = btnShare.innerHTML;
+      btnShare.innerHTML = '⏳ Hazırlanıyor...';
+      
+      const shareCard = document.getElementById('shareCardTemplate');
+      
+      try {
+        const canvas = await html2canvas(shareCard, {
+          allowTaint: true,
+          useCORS: true,
+          scale: 2, // 2x resolution for crisp text
+          backgroundColor: '#F8F7F4'
+        });
+        
+        const dataUrl = canvas.toDataURL('image/png');
+        
+        const link = document.createElement('a');
+        link.download = '<%= article.slug %>-paylas.png';
+        link.href = dataUrl;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        if (window.showToast) {
+          window.showToast('Görsel kartı başarıyla indirildi!', 'success');
+        } else {
+          alert('Görsel kartı başarıyla indirildi!');
+        }
+      } catch (error) {
+        console.error('Share Image Generation Failed:', error);
+        alert('Görsel oluşturulurken bir hata oluştu.');
+      } finally {
+        btnShare.disabled = false;
+        btnShare.innerHTML = originalText;
+      }
+    });
+  });
+</script>
 
 <%- include('../partials/footer') %>
