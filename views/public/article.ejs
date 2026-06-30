@@ -38,7 +38,9 @@
   <button class="share-btn twitter" data-platform="twitter" type="button" title="𝕏 Twitter'da Paylaş">𝕏</button>
   <button class="share-btn linkedin" data-platform="linkedin" type="button" title="LinkedIn'de Paylaş">in</button>
   <button class="share-btn whatsapp" data-platform="whatsapp" type="button" title="WhatsApp'ta Paylaş">wa</button>
-  <button class="share-btn image-share btnShareAsImage" type="button" title="Görsel Olarak Paylaş">🖼️</button>
+  <button class="share-btn image-share btnShareAsImage" type="button" title="Görsel Olarak Paylaş">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: block;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+  </button>
 </div>
 
 <article class="article-detail">
@@ -86,8 +88,9 @@
       <button class="share-btn whatsapp" data-platform="whatsapp" type="button">
         WhatsApp'ta Paylaş
       </button>
-      <button class="share-btn image-share" id="btnShareAsImage" type="button" style="background-color: #C53030; color: white; border-color: #C53030;">
-        🖼️ Görsel Olarak Paylaş
+      <button class="share-btn image-share" id="btnShareAsImage" type="button" style="background-color: #C53030; color: white; border-color: #C53030; display: inline-flex; align-items: center; gap: 6px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+        <span>Görsel Olarak Paylaş</span>
       </button>
     </div>
   </div>
