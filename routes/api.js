@@ -225,8 +225,6 @@ router.post('/upload-card', (req, res) => {
 });
 
 // Fetch financial data from Yahoo Finance endpoint
-const https = require('https');
-
 function fetchYahooFinance(symbol) {
   return new Promise((resolve) => {
     const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=1d`;
