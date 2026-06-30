@@ -1,8 +1,9 @@
 const Groq = require('groq-sdk');
 
-const apiKeys = process.env.GROQ_API_KEYS
-  ? process.env.GROQ_API_KEYS.split(',').map(k => k.trim()).filter(Boolean)
-  : [process.env.GROQ_API_KEY].filter(Boolean);
+const apiKeys = (process.env.GROQ_API_KEYS
+  ? process.env.GROQ_API_KEYS.split(',').map(k => k.trim())
+  : [process.env.GROQ_API_KEY]
+).filter(k => k && k.startsWith('gsk_'));
 
 const clients = apiKeys.map(key => new Groq({ apiKey: key }));
 let currentKeyIndex = 0;
