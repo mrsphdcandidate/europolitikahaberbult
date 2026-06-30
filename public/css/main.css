@@ -1395,3 +1395,32 @@ img {
   background: #2D3748 !important;
   color: #E2E8F0 !important;
 }
+
+/* Homepage Dark Mode Contrast Fixes */
+[data-theme="dark"] .hero-title a,
+[data-theme="dark"] .card-title a {
+  color: #F7FAFC !important;
+}
+[data-theme="dark"] .hero-title a:hover,
+[data-theme="dark"] .card-title a:hover {
+  color: #C53030 !important;
+}
+[data-theme="dark"] .hero-excerpt,
+[data-theme="dark"] .card-excerpt {
+  color: #A0AEC0 !important;
+}
+[data-theme="dark"] .section-divider h2 {
+  color: #F7FAFC !important;
+}
+[data-theme="dark"] .section-divider h2::before,
+[data-theme="dark"] .section-divider h2::after {
+  background: #2D3748 !important;
+}
+[data-theme="dark"] .hero-date,
+[data-theme="dark"] .card-date {
+  color: #718096 !important;
+}
+[data-theme="dark"] .article-card {
+  background-color: #1A1A1A !important;
+  border-color: #2D3748 !important;
+}

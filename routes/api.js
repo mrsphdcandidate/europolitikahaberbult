@@ -203,6 +203,39 @@ router.post('/ai/process', async (req, res) => {
   }
 });
 
+// Helper to extract clean source name from URL
+function getDomainSourceName(url) {
+  try {
+    const parsed = urlModule.parse(url);
+    let host = parsed.hostname || '';
+    host = host.replace(/^www\./i, '');
+    const parts = host.split('.');
+    let name = parts[0] || 'Kaynak';
+    
+    const mapping = {
+      'bbc': 'BBC',
+      'reuters': 'Reuters',
+      'bloomberg': 'Bloomberg',
+      'dw': 'DW',
+      'nytimes': 'NYT',
+      'euronews': 'Euronews',
+      'aljazeera': 'Al Jazeera',
+      'ft': 'Financial Times',
+      'economist': 'The Economist',
+      'cnbc': 'CNBC'
+    };
+    
+    const lowerName = name.toLowerCase();
+    if (mapping[lowerName]) {
+      return mapping[lowerName];
+    }
+    
+    return name.charAt(0).toUpperCase() + name.slice(1);
+  } catch (e) {
+    return 'Kaynak';
+  }
+}
+
 // AI newsletter processing endpoint (compiles multiple URLs)
 router.post('/ai/process-newsletter', async (req, res) => {
   const { urls } = req.body; // array of urls
@@ -231,11 +264,14 @@ router.post('/ai/process-newsletter', async (req, res) => {
             localImageUrl = await downloadAndSaveAsWebP(scraped.cover_image);
           }
           
+          const sourceName = getDomainSourceName(url);
+
           scrapedArticles.push({
             url,
             title: scraped.title,
             text: scraped.text,
-            cover_image: localImageUrl
+            cover_image: localImageUrl,
+            source: sourceName
           });
 
           if (localImageUrl) {
@@ -253,7 +289,7 @@ router.post('/ai/process-newsletter', async (req, res) => {
 
     // 2. Compile text for Groq
     const combinedText = scrapedArticles.map((art, idx) => {
-      return `Haber #${idx + 1}:\nBaşlık: ${art.title}\nKaynak Linki: ${art.url}\nİçerik:\n${art.text}`;
+      return `Haber #${idx + 1}:\nBaşlık: ${art.title}\nKaynak: ${art.source} (${art.url})\nİçerik:\n${art.text}`;
     }).join('\n\n---\n\n');
 
     console.log('[Newsletter Compiler] Groq AI ile bülten derleniyor...');

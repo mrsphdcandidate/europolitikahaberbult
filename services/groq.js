@@ -114,7 +114,8 @@ const NEWSLETTER_SYSTEM_PROMPT = `Sen bir politik ekonomi editörüsün. Sana ve
      Örnek: <img class="image-placeholder" data-id="1" data-prompt="Avrupa enflasyon grafiği" data-search="europe inflation chart">
 4. Kategori: Makroekonomi, Türkiye Ekonomisi, Küresel Politika, Piyasalar, Analiz seçeneklerinden biri (bültenin geneline en uygun olanı).
 5. Etiketler: Bülten konularıyla ilgili 3-5 anahtar kelime.
-6. Yanıtını JSON formatında ver: {"title": "...", "excerpt": "...", "content": "...", "category": "...", "tags": ["..."]}`;
+6. Kaynak Bilgisi: Her haber konusunun anlatımının en son cümlesinin sonuna, parantez içinde o habere ait kaynağın ismini ekleyin (Örn: "(BBC)", "(DW)", "(Reuters)"). Bu kaynak ismi size haber girdisinde "Kaynak: [Isim]" şeklinde verilecektir, oradaki ismi birebir kullanın.
+7. Yanıtını JSON formatında ver: {"title": "...", "excerpt": "...", "content": "...", "category": "...", "tags": ["..."]}`;
 
 async function processNewsletterContent(combinedText) {
   if (clients.length === 0) {
