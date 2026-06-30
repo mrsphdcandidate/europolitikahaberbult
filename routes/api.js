@@ -128,6 +128,33 @@ async function resolveInlineImages(htmlContent) {
   return resolvedHtml;
 }
 
+// Helper to prepare image placeholders for CKEditor by transforming them into valid <img> tags with a spacer src
+function preparePlaceholdersForEditor(htmlContent) {
+  if (!htmlContent) return htmlContent;
+  
+  // 1. Convert <div class="image-placeholder" ...></div> to <img class="image-placeholder" ...>
+  let processed = htmlContent.replace(
+    /<div\s+class="image-placeholder"([^>]*)><\/div>/gi,
+    '<img class="image-placeholder" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"$1>'
+  );
+
+  // 2. Make sure any existing <img class="image-placeholder" ...> tags have the spacer src
+  processed = processed.replace(
+    /<img\s+class="image-placeholder"([^>]*)/gi,
+    (match) => {
+      if (!match.includes('src=')) {
+        return match.replace(
+          /<img\s+class="image-placeholder"/gi,
+          '<img class="image-placeholder" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"'
+        );
+      }
+      return match;
+    }
+  );
+
+  return processed;
+}
+
 // AI content processing endpoint
 router.post('/ai/process', async (req, res) => {
   const { content } = req.body;
@@ -166,6 +193,7 @@ router.post('/ai/process', async (req, res) => {
     // Resolve inline images inside content
     if (result.content) {
       result.content = await resolveInlineImages(result.content);
+      result.content = preparePlaceholdersForEditor(result.content);
     }
 
     return res.json({ success: true, data: result });
@@ -233,6 +261,11 @@ router.post('/ai/process-newsletter', async (req, res) => {
 
     // 3. Pre-fill newsletter cover image with the first scraped article's image if available
     result.cover_image = scrapedArticles[0]?.cover_image || null;
+
+    // Prepare placeholders for editor
+    if (result.content) {
+      result.content = preparePlaceholdersForEditor(result.content);
+    }
 
     // 4. Return result and resolved slot images
     return res.json({
