@@ -1365,6 +1365,14 @@ img {
 [data-theme="dark"] .article-content h3 {
   color: #F7FAFC;
 }
+[data-theme="dark"] .article-detail-title {
+  color: #F7FAFC;
+}
+[data-theme="dark"] .article-content ul,
+[data-theme="dark"] .article-content ol,
+[data-theme="dark"] .article-content li {
+  color: #E2E8F0;
+}
 [data-theme="dark"] blockquote {
   background: #1A1A1A;
   border-left-color: #C53030;
