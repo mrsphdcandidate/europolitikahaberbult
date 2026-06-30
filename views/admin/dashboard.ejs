@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — EuroPolitika Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body class="admin-body">
+
+  <!-- Mobile sidebar toggle -->
+  <button class="sidebar-toggle" aria-label="Menüyü aç">☰</button>
+  <div class="sidebar-overlay"></div>
+
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <div class="sidebar-header">
+      <a href="/admin" class="sidebar-logo">EURO<span>POLITIKA</span></a>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="/admin" class="nav-item active">
+        <span class="nav-icon">📊</span> Dashboard
+      </a>
+      <a href="/admin/haberler" class="nav-item">
+        <span class="nav-icon">📰</span> Haberler
+      </a>
+      <a href="/admin/aboneler" class="nav-item">
+        <span class="nav-icon">👥</span> Aboneler
+      </a>
+      <a href="/" class="nav-item" target="_blank">
+        <span class="nav-icon">🌐</span> Siteye Git
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="/admin/logout" class="nav-item logout">
+        <span class="nav-icon">🚪</span> Çıkış
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <h1>Dashboard</h1>
+    </div>
+
+    <div class="admin-content">
+
+      <!-- Stats Cards -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon red">📄</div>
+          <div class="stat-info">
+            <div class="stat-number"><%= typeof stats !== 'undefined' && stats.totalArticles != null ? stats.totalArticles : 0 %></div>
+            <div class="stat-label">Toplam Haber</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon green">✅</div>
+          <div class="stat-info">
+            <div class="stat-number"><%= typeof stats !== 'undefined' && stats.publishedArticles != null ? stats.publishedArticles : 0 %></div>
+            <div class="stat-label">Yayınlanan</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon blue">👥</div>
+          <div class="stat-info">
+            <div class="stat-number"><%= typeof stats !== 'undefined' && stats.totalSubscribers != null ? stats.totalSubscribers : 0 %></div>
+            <div class="stat-label">Abone</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon yellow">👁️</div>
+          <div class="stat-info">
+            <div class="stat-number"><%= typeof stats !== 'undefined' && stats.totalViews != null ? stats.totalViews : 0 %></div>
+            <div class="stat-label">Toplam Görüntülenme</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Articles -->
+      <div class="card">
+        <div class="card-header">
+          <h2>Son Haberler</h2>
+          <a href="/admin/haberler" class="btn btn-secondary btn-sm">Tümünü Gör</a>
+        </div>
+        <div class="table-container">
+          <% if (typeof articles !== 'undefined' && articles && articles.length > 0) { %>
+            <table>
+              <thead>
+                <tr>
+                  <th>Başlık</th>
+                  <th>Kategori</th>
+                  <th>Durum</th>
+                  <th>Tarih</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% articles.slice(0, 5).forEach(function(article) { %>
+                  <tr>
+                    <td>
+                      <div class="table-title">
+                        <a href="/admin/haberler/<%= article._id || article.id %>/duzenle">
+                          <%= article.title %>
+                        </a>
+                      </div>
+                    </td>
+                    <td><%= article.category || '—' %></td>
+                    <td>
+                      <% if (article.status === 'published') { %>
+                        <span class="badge badge-published">Yayında</span>
+                      <% } else { %>
+                        <span class="badge badge-draft">Taslak</span>
+                      <% } %>
+                    </td>
+                    <td class="text-muted text-sm">
+                      <%= article.createdAt ? new Date(article.createdAt).toLocaleDateString('tr-TR') : '—' %>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          <% } else { %>
+            <div class="empty-state">
+              <div class="empty-state-icon">📰</div>
+              <h3>Henüz haber yok</h3>
+              <p>İlk haberinizi oluşturmaya başlayın.</p>
+            </div>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="quick-actions">
+        <a href="/admin/haberler/yeni" class="btn btn-primary">
+          ✏️ Yeni Haber Yaz
+        </a>
+        <a href="/admin/aboneler" class="btn btn-secondary">
+          👥 Aboneleri Görüntüle
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="/js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<%- include('../partials/header', {
+  pageTitle: typeof article !== 'undefined' ? article.title : 'Yazı',
+  pageDescription: typeof article !== 'undefined' && article.excerpt ? article.excerpt : '',
+  ogType: 'article',
+  ogImage: typeof article !== 'undefined' && article.cover_image ? article.cover_image : ''
+}) %>
+
+<%
+  // Helper: format date in Turkish
+  function formatDate(dateStr) {
+    if (!dateStr) return '';
+    var d = new Date(dateStr);
+    var months = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+    return d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+  }
+
+  // Helper: estimate reading time (Turkish)
+  function readingTime(content) {
+    if (!content) return '1 dk';
+    var text = content.replace(/<[^>]*>/g, '');
+    var words = text.split(/\s+/).length;
+    var minutes = Math.max(1, Math.ceil(words / 200));
+    return minutes + ' dk okuma';
+  }
+
+  // Helper: truncate text
+  function truncate(str, len) {
+    if (!str) return '';
+    if (str.length <= len) return str;
+    return str.substring(0, len).trim() + '...';
+  }
+
+  var relatedArticles = typeof recentArticles !== 'undefined' ? recentArticles : [];
+%>
+
+<article class="article-detail">
+  <!-- Cover Image -->
+  <div class="article-cover">
+    <div class="article-cover-image">
+      <% if (article.cover_image) { %>
+        <img src="<%= article.cover_image %>" alt="<%= article.title %>" loading="eager">
+      <% } else { %>
+        <div class="article-cover-placeholder"></div>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Article Header -->
+  <div class="article-header">
+    <div class="article-meta-top">
+      <% if (article.category) { %>
+        <span class="category-pill"><%= article.category %></span>
+      <% } %>
+      <span class="article-meta-item"><%= formatDate(article.published_at || article.created_at) %></span>
+      <% if (typeof article.views !== 'undefined') { %>
+        <span class="article-meta-item"><%= article.views %> görüntülenme</span>
+      <% } %>
+      <span class="article-meta-item"><%= readingTime(article.content) %></span>
+    </div>
+    <h1 class="article-detail-title"><%= article.title %></h1>
+  </div>
+
+  <!-- Article Content -->
+  <div class="article-content">
+    <%- article.content %>
+  </div>
+
+  <!-- Share Buttons -->
+  <div class="share-section">
+    <h3>Bu Yazıyı Paylaş</h3>
+    <div class="share-buttons">
+      <button class="share-btn twitter" data-platform="twitter" type="button">
+        𝕏 Twitter'da Paylaş
+      </button>
+      <button class="share-btn linkedin" data-platform="linkedin" type="button">
+        LinkedIn'de Paylaş
+      </button>
+      <button class="share-btn whatsapp" data-platform="whatsapp" type="button">
+        WhatsApp'ta Paylaş
+      </button>
+    </div>
+  </div>
+</article>
+
+<% if (relatedArticles.length > 0) { %>
+<!-- Related Articles -->
+<div class="related-section">
+  <div class="section-divider">
+    <h2>DİĞER YAZILAR</h2>
+  </div>
+  <div class="related-grid">
+    <% relatedArticles.forEach(function(relArticle) { %>
+    <article class="article-card">
+      <a href="/haber/<%= relArticle.slug %>" class="card-image-wrapper">
+        <% if (relArticle.cover_image) { %>
+          <img src="<%= relArticle.cover_image %>" alt="<%= relArticle.title %>" loading="lazy">
+        <% } else { %>
+          <div class="card-image-placeholder"></div>
+        <% } %>
+      </a>
+      <div class="card-body">
+        <% if (relArticle.category) { %>
+          <span class="card-category"><%= relArticle.category %></span>
+        <% } %>
+        <h3 class="card-title">
+          <a href="/haber/<%= relArticle.slug %>"><%= relArticle.title %></a>
+        </h3>
+        <% if (relArticle.excerpt) { %>
+          <p class="card-excerpt"><%= truncate(relArticle.excerpt, 120) %></p>
+        <% } %>
+        <div class="card-footer">
+          <span class="card-date"><%= formatDate(relArticle.published_at || relArticle.created_at) %></span>
+          <a href="/haber/<%= relArticle.slug %>" class="card-read-more">DEVAMINI OKU →</a>
+        </div>
+      </div>
+    </article>
+    <% }); %>
+  </div>
+</div>
+<% } %>
+
+<%- include('../partials/footer') %>

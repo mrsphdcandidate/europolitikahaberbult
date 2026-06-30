@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= (typeof article !== 'undefined' && article) ? 'Haberi Düzenle' : 'Yeni Haber' %> — EuroPolitika Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body class="admin-body">
+
+  <!-- Mobile sidebar toggle -->
+  <button class="sidebar-toggle" aria-label="Menüyü aç">☰</button>
+  <div class="sidebar-overlay"></div>
+
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <div class="sidebar-header">
+      <a href="/admin" class="sidebar-logo">EURO<span>POLITIKA</span></a>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="/admin" class="nav-item">
+        <span class="nav-icon">📊</span> Dashboard
+      </a>
+      <a href="/admin/haberler" class="nav-item active">
+        <span class="nav-icon">📰</span> Haberler
+      </a>
+      <a href="/admin/aboneler" class="nav-item">
+        <span class="nav-icon">👥</span> Aboneler
+      </a>
+      <a href="/" class="nav-item" target="_blank">
+        <span class="nav-icon">🌐</span> Siteye Git
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="/admin/logout" class="nav-item logout">
+        <span class="nav-icon">🚪</span> Çıkış
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <h1><%= (typeof article !== 'undefined' && article) ? 'Haberi Düzenle' : 'Yeni Haber' %></h1>
+      <div class="topbar-actions">
+        <a href="/admin/haberler" class="btn btn-secondary">← Geri Dön</a>
+      </div>
+    </div>
+
+    <div class="admin-content">
+
+      <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-error">
+          <span>⚠️</span> <%= error %>
+        </div>
+      <% } %>
+
+      <form method="POST" action="/admin/haberler" class="editor-form">
+        <% if (typeof article !== 'undefined' && article && (article._id || article.id)) { %>
+          <input type="hidden" name="id" value="<%= article._id || article.id %>">
+        <% } %>
+
+        <div class="editor-grid">
+
+          <!-- Left Column: Main Editor -->
+          <div class="editor-main">
+
+            <!-- AI Processing Section (only for new articles) -->
+            <% if (typeof article === 'undefined' || !article) { %>
+              <div class="ai-section">
+                <div class="ai-section-title">
+                  🤖 AI ile Haberleştir
+                </div>
+                <p class="ai-section-desc">
+                  Ham içeriği yapıştırın, AI otomatik olarak başlık, özet ve içerik oluşturacak.
+                </p>
+
+                <div class="form-group">
+                  <textarea
+                    id="rawContent"
+                    rows="8"
+                    placeholder="Ham içeriğinizi buraya yapıştırın... (haber linki, metin veya notlar)"
+                  ></textarea>
+                </div>
+
+                <div class="ai-actions">
+                  <button type="button" id="aiProcessBtn" class="btn btn-primary btn-lg">
+                    🤖 AI ile Haberleştir
+                  </button>
+                </div>
+
+                <!-- Loading Indicator -->
+                <div class="ai-loading">
+                  <div class="ai-spinner"></div>
+                  <span class="ai-loading-text">İçerik işleniyor<span>...</span></span>
+                </div>
+
+                <!-- Success Message -->
+                <div class="ai-result">
+                  ✅ İçerik başarıyla işlendi! Alanları kontrol edin ve yayınlayın.
+                </div>
+              </div>
+            <% } %>
+
+            <!-- Editor Fields -->
+            <div class="editor-fields" style="<%= (typeof article === 'undefined' || !article) ? 'display:none;' : '' %>">
+              <div class="card">
+                <div class="card-body">
+                  <div class="form-group">
+                    <label for="title">Başlık</label>
+                    <input
+                      type="text"
+                      id="title"
+                      name="title"
+                      placeholder="Haber başlığını girin"
+                      value="<%= (typeof article !== 'undefined' && article && article.title) ? article.title : '' %>"
+                      required
+                    >
+                  </div>
+
+                  <div class="form-group">
+                    <label for="excerpt">Özet</label>
+                    <textarea
+                      id="excerpt"
+                      name="excerpt"
+                      rows="3"
+                      placeholder="Kısa özet yazın (ana sayfada görünecek)"
+                    ><%= (typeof article !== 'undefined' && article && article.excerpt) ? article.excerpt : '' %></textarea>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="content">İçerik</label>
+                    <textarea
+                      id="content"
+                      name="content"
+                      rows="15"
+                      placeholder="Haber içeriğini yazın (HTML desteklenir)"
+                      required
+                    ><%= (typeof article !== 'undefined' && article && article.content) ? article.content : '' %></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Right Column: Settings Sidebar -->
+          <div class="editor-sidebar">
+
+            <!-- Cover Image -->
+            <div class="card">
+              <div class="card-header">
+                <h2>Kapak Görseli</h2>
+              </div>
+              <div class="card-body">
+                <div class="image-upload-area">
+                  <input type="file" id="coverImageInput" accept="image/*">
+                  <div class="upload-icon">📷</div>
+                  <div class="upload-text">Görsel yüklemek için tıklayın</div>
+                  <div class="upload-hint">JPEG, PNG, WebP — Max 5MB</div>
+                </div>
+
+                <div class="image-preview <%= (typeof article !== 'undefined' && article && article.cover_image) ? 'visible' : '' %>">
+                  <% if (typeof article !== 'undefined' && article && article.cover_image) { %>
+                    <img src="<%= article.cover_image %>" alt="Kapak görseli">
+                  <% } %>
+                </div>
+
+                <div class="url-upload-area" style="margin-top: 12px; border-top: 1px solid #E2E8F0; padding-top: 12px;">
+                  <label for="coverImageUrlInput" style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: #718096; display: block; margin-bottom: 6px;">Veya URL'den Görsel Çek</label>
+                  <div style="display: flex; gap: 6px;">
+                    <input type="text" id="coverImageUrlInput" placeholder="http://...jpg" style="flex: 1; padding: 6px 10px; border: 1px solid #CBD5E0; border-radius: 4px; font-size: 13px; font-family: inherit;">
+                    <button type="button" id="btnDownloadCoverUrl" class="btn btn-secondary btn-sm" style="padding: 6px 12px; font-size: 12px;">İndir</button>
+                  </div>
+                </div>
+
+                <input
+                  type="hidden"
+                  id="coverImage"
+                  name="cover_image"
+                  value="<%= (typeof article !== 'undefined' && article && article.cover_image) ? article.cover_image : '' %>"
+                >
+              </div>
+            </div>
+
+            <!-- Inline Images Card -->
+            <div class="card" id="inlineImagesCard" style="display: none; margin-top: 15px;">
+              <div class="card-header">
+                <h2>Haber İçi Görseller</h2>
+              </div>
+              <div class="card-body" id="inlineImagesContainer" style="display: flex; flex-direction: column; gap: 16px;">
+                <!-- Dynamically populated via javascript -->
+              </div>
+            </div>
+
+            <!-- Category -->
+            <div class="card">
+              <div class="card-header">
+                <h2>Ayarlar</h2>
+              </div>
+              <div class="card-body">
+                <div class="form-group">
+                  <label for="category">Kategori</label>
+                  <select id="category" name="category">
+                    <option value="">Kategori seçin</option>
+                    <% const categories = ['Makroekonomi', 'Türkiye Ekonomisi', 'Küresel Politika', 'Merkez Bankaları', 'Piyasalar', 'Analiz']; %>
+                    <% categories.forEach(function(cat) { %>
+                      <option
+                        value="<%= cat %>"
+                        <%= (typeof article !== 'undefined' && article && article.category === cat) ? 'selected' : '' %>
+                      >
+                        <%= cat %>
+                      </option>
+                    <% }); %>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="tags">Etiketler</label>
+                  <input
+                    type="text"
+                    id="tags"
+                    name="tags"
+                    placeholder="Virgülle ayırarak yazın"
+                    value="<%= (typeof article !== 'undefined' && article && article.tags) ? (Array.isArray(article.tags) ? article.tags.join(', ') : article.tags) : '' %>"
+                  >
+                  <p class="form-hint">Örn: ekonomi, faiz, enflasyon</p>
+                </div>
+
+                <div class="form-group">
+                  <label for="status">Durum</label>
+                  <select id="status" name="status">
+                    <option
+                      value="draft"
+                      <%= (typeof article !== 'undefined' && article && article.status === 'draft') ? 'selected' : '' %>
+                    >
+                      Taslak
+                    </option>
+                    <option
+                      value="published"
+                      <%= (typeof article !== 'undefined' && article && article.status === 'published') ? 'selected' : '' %>
+                    >
+                      Yayında
+                    </option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="card">
+              <div class="card-body">
+                <button type="submit" class="btn btn-primary btn-full btn-lg">
+                  <%= (typeof article !== 'undefined' && article) ? '💾 Güncelle' : '🚀 Yayınla' %>
+                </button>
+                <% if (typeof article !== 'undefined' && article) { %>
+                  <a
+                    href="/admin/haberler"
+                    class="btn btn-secondary btn-full mt-2"
+                    style="margin-top: 0.75rem;"
+                  >
+                    İptal
+                  </a>
+                <% } %>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </form>
+
+    </div>
+  </main>
+
+  <script src="/js/admin.js"></script>
+</body>
+</html>

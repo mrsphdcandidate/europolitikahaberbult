@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aboneler — EuroPolitika Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body class="admin-body">
+
+  <!-- Mobile sidebar toggle -->
+  <button class="sidebar-toggle" aria-label="Menüyü aç">☰</button>
+  <div class="sidebar-overlay"></div>
+
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <div class="sidebar-header">
+      <a href="/admin" class="sidebar-logo">EURO<span>POLITIKA</span></a>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="/admin" class="nav-item">
+        <span class="nav-icon">📊</span> Dashboard
+      </a>
+      <a href="/admin/haberler" class="nav-item">
+        <span class="nav-icon">📰</span> Haberler
+      </a>
+      <a href="/admin/aboneler" class="nav-item active">
+        <span class="nav-icon">👥</span> Aboneler
+      </a>
+      <a href="/" class="nav-item" target="_blank">
+        <span class="nav-icon">🌐</span> Siteye Git
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="/admin/logout" class="nav-item logout">
+        <span class="nav-icon">🚪</span> Çıkış
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <h1>Aboneler</h1>
+    </div>
+
+    <div class="admin-content">
+
+      <!-- Subscriber Count -->
+      <p class="subscriber-count">
+        Toplam <strong><%= (typeof subscribers !== 'undefined' && subscribers) ? subscribers.length : 0 %></strong> abone
+      </p>
+
+      <div class="card">
+        <div class="table-container">
+          <% if (typeof subscribers !== 'undefined' && subscribers && subscribers.length > 0) { %>
+            <table>
+              <thead>
+                <tr>
+                  <th>E-posta</th>
+                  <th>Ad</th>
+                  <th>Abone Tarihi</th>
+                  <th>Durum</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% subscribers.forEach(function(sub) { %>
+                  <tr>
+                    <td>
+                      <div class="table-title"><%= sub.email %></div>
+                    </td>
+                    <td><%= sub.name || '—' %></td>
+                    <td class="text-muted text-sm">
+                      <%= sub.createdAt ? new Date(sub.createdAt).toLocaleDateString('tr-TR', { day: '2-digit', month: 'short', year: 'numeric' }) : '—' %>
+                    </td>
+                    <td>
+                      <% if (sub.status === 'active' || !sub.status) { %>
+                        <span class="badge badge-active">Aktif</span>
+                      <% } else { %>
+                        <span class="badge badge-inactive">Pasif</span>
+                      <% } %>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          <% } else { %>
+            <div class="empty-state">
+              <div class="empty-state-icon">📬</div>
+              <h3>Henüz abone yok</h3>
+              <p>Siteye abone olan kullanıcılar burada görünecek.</p>
+            </div>
+          <% } %>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="/js/admin.js"></script>
+</body>
+</html>

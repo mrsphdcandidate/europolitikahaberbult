@@ -1,0 +1,12 @@
+# Dependencies
+node_modules/
+
+# Local Environment Variables
+.env
+
+# SQLite Database and Data Folder
+data/
+
+# Uploaded Files
+public/uploads/*
+!public/uploads/.gitkeep

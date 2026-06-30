@@ -1,0 +1,99 @@
+<%- include('../partials/header', { pageTitle: '', pageDescription: 'Politik ekonomi dünyasından en güncel analizler ve haberler.' }) %>
+
+<%
+  // Helper: format date in Turkish
+  function formatDate(dateStr) {
+    if (!dateStr) return '';
+    var d = new Date(dateStr);
+    var months = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+    return d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+  }
+
+  // Helper: truncate text
+  function truncate(str, len) {
+    if (!str) return '';
+    if (str.length <= len) return str;
+    return str.substring(0, len).trim() + '...';
+  }
+
+  var articlesList = typeof articles !== 'undefined' ? articles : [];
+  var heroArticle = articlesList.length > 0 ? articlesList[0] : null;
+  var remainingArticles = articlesList.length > 1 ? articlesList.slice(1) : [];
+%>
+
+<% if (heroArticle) { %>
+<!-- Hero Section -->
+<section class="hero-section">
+  <div class="hero-inner">
+    <a href="/haber/<%= heroArticle.slug %>" class="hero-image-wrapper">
+      <% if (heroArticle.cover_image) { %>
+        <img src="<%= heroArticle.cover_image %>" alt="<%= heroArticle.title %>" loading="eager">
+      <% } else { %>
+        <div class="hero-image-placeholder"></div>
+      <% } %>
+    </a>
+    <% if (heroArticle.category) { %>
+      <span class="hero-category"><%= heroArticle.category %></span>
+    <% } %>
+    <h1 class="hero-title">
+      <a href="/haber/<%= heroArticle.slug %>"><%= heroArticle.title %></a>
+    </h1>
+    <% if (heroArticle.excerpt) { %>
+      <p class="hero-excerpt"><%= truncate(heroArticle.excerpt, 200) %></p>
+    <% } %>
+    <div class="hero-meta">
+      <span class="hero-date"><%= formatDate(heroArticle.published_at || heroArticle.created_at) %></span>
+    </div>
+    <a href="/haber/<%= heroArticle.slug %>" class="hero-read-more">DEVAMINI OKU →</a>
+  </div>
+</section>
+<% } %>
+
+<% if (remainingArticles.length > 0) { %>
+<!-- Section Divider -->
+<div class="section-divider">
+  <h2>SON YAZILAR</h2>
+</div>
+
+<!-- Articles Grid -->
+<section class="articles-section">
+  <div class="articles-grid">
+    <% remainingArticles.forEach(function(article) { %>
+    <article class="article-card">
+      <a href="/haber/<%= article.slug %>" class="card-image-wrapper">
+        <% if (article.cover_image) { %>
+          <img src="<%= article.cover_image %>" alt="<%= article.title %>" loading="lazy">
+        <% } else { %>
+          <div class="card-image-placeholder"></div>
+        <% } %>
+      </a>
+      <div class="card-body">
+        <% if (article.category) { %>
+          <span class="card-category"><%= article.category %></span>
+        <% } %>
+        <h3 class="card-title">
+          <a href="/haber/<%= article.slug %>"><%= article.title %></a>
+        </h3>
+        <% if (article.excerpt) { %>
+          <p class="card-excerpt"><%= truncate(article.excerpt, 120) %></p>
+        <% } %>
+        <div class="card-footer">
+          <span class="card-date"><%= formatDate(article.published_at || article.created_at) %></span>
+          <a href="/haber/<%= article.slug %>" class="card-read-more">DEVAMINI OKU →</a>
+        </div>
+      </div>
+    </article>
+    <% }); %>
+  </div>
+</section>
+<% } %>
+
+<% if (!heroArticle && remainingArticles.length === 0) { %>
+<!-- Welcome State -->
+<section class="welcome-section">
+  <h1>EuroPolitika'ya Hoş Geldiniz</h1>
+  <p>Politik ekonomi dünyasından en güncel analizler ve haberler yakında burada olacak. Abone olarak ilk yazılarımızdan haberdar olun.</p>
+</section>
+<% } %>
+
+<%- include('../partials/footer') %>

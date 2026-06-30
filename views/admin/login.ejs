@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Giriş — EuroPolitika</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body class="login-page">
+  <div class="login-container">
+    <div class="login-card">
+      <h1 class="login-logo">EURO<span>POLITIKA</span></h1>
+      <p class="login-subtitle">Yönetim Paneli</p>
+
+      <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-error">
+          <span>⚠️</span>
+          <%= error %>
+        </div>
+      <% } %>
+
+      <form method="POST" action="/admin/login">
+        <div class="form-group">
+          <label for="password">Şifre</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Admin şifrenizi girin"
+            required
+            autofocus
+            autocomplete="current-password"
+          >
+        </div>
+        <button type="submit" class="btn btn-primary btn-full btn-lg">
+          Giriş Yap
+        </button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>
