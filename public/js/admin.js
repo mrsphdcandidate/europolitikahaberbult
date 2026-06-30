@@ -847,6 +847,10 @@ function showNotification(message, type = 'info') {
 function initRichTextEditor() {
   const contentEl = document.getElementById('content');
   if (contentEl && typeof CKEDITOR !== 'undefined') {
+    // Prevent CKEditor from stripping empty div and span tags
+    CKEDITOR.dtd.$removeEmpty['div'] = false;
+    CKEDITOR.dtd.$removeEmpty['span'] = false;
+
     // Disable content filtering to prevent stripping custom image placeholders
     CKEDITOR.config.allowedContent = true;
     CKEDITOR.replace('content', {

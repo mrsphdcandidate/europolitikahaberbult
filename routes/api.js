@@ -8,6 +8,7 @@ const https = require('https');
 const urlModule = require('url');
 const { processContent } = require('../services/groq');
 const { scrapeUrl } = require('../services/scraper');
+const sharp = require('sharp');
 
 // Multer storage configuration
 const storage = multer.diskStorage({
@@ -47,7 +48,62 @@ async function resolveStaticImageUrl(url) {
   }
 }
 
-// Helper to replace all loremflickr dynamic links inside HTML content with static ones
+// Helper to download an image from a URL and save it locally in WebP format
+async function downloadAndSaveAsWebP(targetUrl) {
+  try {
+    const parsedUrl = urlModule.parse(targetUrl);
+    const filename = path.basename(parsedUrl.pathname) || 'downloaded-image.jpg';
+    
+    // Create a safe unique filename
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const safeExt = path.extname(filename) || '.jpg';
+    const localFilename = uniqueSuffix + safeExt;
+    const localPath = path.join(__dirname, '..', 'public', 'uploads', localFilename);
+
+    console.log(`[Downloader Helper] Görsel indiriliyor: ${targetUrl} -> ${localPath}`);
+
+    const downloadPromise = () => new Promise((resolve, reject) => {
+      const client = targetUrl.startsWith('https') ? https : http;
+      client.get(targetUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
+          'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+          'Referer': 'https://google.com'
+        }
+      }, (response) => {
+        if (response.statusCode === 301 || response.statusCode === 302) {
+          // Follow redirect
+          resolve(downloadAndSaveAsWebP(response.headers.location));
+          return;
+        }
+
+        if (response.statusCode !== 200) {
+          reject(new Error(`HTTP Durum Kodu: ${response.statusCode}`));
+          return;
+        }
+
+        const fileStream = fs.createWriteStream(localPath);
+        response.pipe(fileStream);
+        fileStream.on('finish', () => {
+          fileStream.close();
+          resolve(localPath);
+        });
+      }).on('error', (err) => {
+        fs.unlink(localPath, () => {}); // delete partial file
+        reject(err);
+      });
+    });
+
+    const downloadedPath = await downloadPromise();
+    // Convert to webp using our existing convertToWebP helper
+    return await convertToWebP(downloadedPath);
+  } catch (error) {
+    console.error('downloadAndSaveAsWebP error:', error.message);
+    return null;
+  }
+}
+
+// Helper to replace all loremflickr dynamic links inside HTML content with static locally saved ones
 async function resolveInlineImages(htmlContent) {
   if (!htmlContent) return htmlContent;
   
@@ -61,9 +117,12 @@ async function resolveInlineImages(htmlContent) {
   
   let resolvedHtml = htmlContent;
   for (const url of urls) {
-    console.log(`[Image Resolver] Raporlanan dinamik görsel çözümleniyor: ${url}`);
+    console.log(`[Image Resolver] Raporlanan dinamik görsel çözümleniyor ve yerelleştiriliyor: ${url}`);
     const staticUrl = await resolveStaticImageUrl(url);
-    resolvedHtml = resolvedHtml.replace(url, staticUrl);
+    const localUrl = await downloadAndSaveAsWebP(staticUrl);
+    if (localUrl) {
+      resolvedHtml = resolvedHtml.replace(url, localUrl);
+    }
   }
   
   return resolvedHtml;
@@ -95,7 +154,7 @@ router.post('/ai/process', async (req, res) => {
     console.log('[AI] Groq ile içerik işleniyor...');
     const result = await processContent(textToProcess);
 
-    // Resolve cover image from image_keywords
+    // Resolve cover image from image_keywords and download it locally
     if (result.image_keywords) {
       const keywordList = result.image_keywords.split(',').map(k => k.trim().toLowerCase()).filter(Boolean);
       let primaryKeyword = keywordList[0] || 'finance';
@@ -103,7 +162,8 @@ router.post('/ai/process', async (req, res) => {
       
       const dynamicCoverUrl = `https://loremflickr.com/800/600/${primaryKeyword}`;
       console.log(`[Image Resolver] Kapak görseli çözümleniyor: ${dynamicCoverUrl}`);
-      result.cover_image = await resolveStaticImageUrl(dynamicCoverUrl);
+      const staticUrl = await resolveStaticImageUrl(dynamicCoverUrl);
+      result.cover_image = await downloadAndSaveAsWebP(staticUrl);
     } else {
       result.cover_image = null;
     }
@@ -119,8 +179,6 @@ router.post('/ai/process', async (req, res) => {
     return res.status(500).json({ success: false, message: error.message });
   }
 });
-
-const sharp = require('sharp');
 
 // WebP image optimizer helper
 async function convertToWebP(inputPath) {
@@ -164,57 +222,11 @@ router.post('/upload-url', async (req, res) => {
   }
 
   try {
-    const parsedUrl = urlModule.parse(url);
-    const filename = path.basename(parsedUrl.pathname) || 'downloaded-image.jpg';
-    
-    // Create a safe unique filename
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const safeExt = path.extname(filename) || '.jpg';
-    const localFilename = uniqueSuffix + safeExt;
-    const localPath = path.join(__dirname, '..', 'public', 'uploads', localFilename);
-
-    console.log(`[Downloader] Görsel indiriliyor: ${url} -> ${localPath}`);
-
-    // Download file helper supporting redirects
-    const download = (targetUrl) => {
-      return new Promise((resolve, reject) => {
-        const client = targetUrl.startsWith('https') ? https : http;
-        client.get(targetUrl, {
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
-            'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
-            'Accept-Language': 'tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7',
-            'Referer': 'https://google.com'
-          }
-        }, (response) => {
-          if (response.statusCode === 301 || response.statusCode === 302) {
-            // Follow redirect
-            resolve(download(response.headers.location));
-            return;
-          }
-
-          if (response.statusCode !== 200) {
-            reject(new Error(`HTTP Durum Kodu: ${response.statusCode}`));
-            return;
-          }
-
-          const fileStream = fs.createWriteStream(localPath);
-          response.pipe(fileStream);
-          fileStream.on('finish', () => {
-            fileStream.close();
-            resolve();
-          });
-        }).on('error', (err) => {
-          fs.unlink(localPath, () => {}); // delete partial file
-          reject(err);
-        });
-      });
-    };
-
-    await download(url);
-    const localUrl = await convertToWebP(localPath);
+    const localUrl = await downloadAndSaveAsWebP(url);
+    if (!localUrl) {
+      throw new Error('Görsel indirilemedi veya işlenemedi.');
+    }
     return res.json({ success: true, url: localUrl });
-
   } catch (error) {
     console.error('Görsel indirme hatası:', error.message);
     return res.status(500).json({ success: false, message: `Görsel indirilemedi: ${error.message}` });
