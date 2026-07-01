@@ -7,7 +7,7 @@ const apiKeys = (process.env.GROQ_API_KEYS
 
 let currentKeyIndex = 0;
 
-const SYSTEM_PROMPT = `Sen profesyonel bir haber editörüsün. Sana verilen ham metni veya haber içeriğini, ANLAMINI VE ÖNEMLİ DETAYLARINI HİÇBİR ŞEKİLDE DEĞİŞTİRMEDEN VE KISALTMA YAPMADAN özgün cümlelerle yeniden yazmalısın (paraphrase). Yanıtını JSON formatında ver: {"title": "...", "excerpt": "...", "content": "...", "category": "...", "tags": ["..."], "image_keywords": "..."}
+const SYSTEM_PROMPT = `Sen profesyonel bir haber editörüsün. Sana verilen ham metni veya haber içeriğini, ANLAMINI VE ÖNEMLİ DETAYLARINI HİÇBİR ŞEKİLDE DEĞİŞTİRMEDEN VE KISALTMA YAPMADAN özgün cümlelerle yeniden yazmalısın (paraphrase). Yanıtını JSON formatında ver: {"title": "...", "excerpt": "...", "content": "...", "key_takeaways": ["...", "...", "..."], "category": "...", "tags": ["..."], "image_keywords": "..."}
 
 ÖNEMLİ KURALLAR:
 1. KISALTMA YAPMA: Orijinal metindeki tüm argümanları, verileri, kişileri ve önemli detayları koru. Haberi özetlemek yerine, orijinal uzunluğuna yakın, derinlikli ve detaylı bir şekilde yeniden kaleme al.
@@ -16,9 +16,10 @@ const SYSTEM_PROMPT = `Sen profesyonel bir haber editörüsün. Sana verilen ham
 - Görsel yer tutucu etiketlerini tam olarak şu formatta yaz: <img class="image-placeholder" data-id="[sıra-no]" data-prompt="[Türkçe görsel açıklaması]" data-search="[İngilizce arama terimleri]"> (Örn: <img class="image-placeholder" data-id="1" data-prompt="Avrupa Merkez Bankası binası önünde euro simgesi" data-search="european central bank building euro sign">). data-prompt kısmına Türkçe açıklamayı, data-search kısmına ise Google Görseller'de aratılacak İngilizce arama terimlerini yazın.
 4. Title: Dikkat çekici, profesyonel başlık.
 5. Excerpt: 2-3 cümlelik çarpıcı özet.
-6. Category: Makroekonomi, Türkiye Ekonomisi, Küresel Politika, Piyasalar, Analiz, Gezi, Genel seçeneklerinden biri (haberin konusuna göre seç).
-7. Tags: 3-5 anahtar kelime.
-8. image_keywords: SADECE şu listeden seçilmiş, ana kapak görseli için en uygun tek bir kelime: finance, money, bank, business, market, politics, government, meeting, europe, travel, beach, hotel, resort, nature, restaurant.`;
+6. key_takeaways: Yazının en can alıcı noktalarını, analizlerini veya önemli verilerini içeren, 3 maddeden oluşan kısa ve vurucu bir liste (Dizi halinde 3 adet Türkçe cümle).
+7. Category: Makroekonomi, Türkiye Ekonomisi, Küresel Politika, Piyasalar, Analiz, Gezi, Genel seçeneklerinden biri (haberin konusuna göre seç).
+8. Tags: 3-5 anahtar kelime.
+9. image_keywords: SADECE şu listeden seçilmiş, ana kapak görseli için en uygun tek bir kelime: finance, money, bank, business, market, politics, government, meeting, europe, travel, beach, hotel, resort, nature, restaurant.`;
 
 const NEWSLETTER_SYSTEM_PROMPT = `Sen bir politik ekonomi editörüsün. Sana verilen birden fazla haber içeriğini birleştirerek yatırımcılara ve okuyuculara yönelik tek bir haftalık/günlük bülten (digest) makalesi oluşturmalısın. 
 
@@ -35,7 +36,8 @@ const NEWSLETTER_SYSTEM_PROMPT = `Sen bir politik ekonomi editörüsün. Sana ve
 5. Etiketler: Bülten konularıyla ilgili 3-5 anahtar kelime.
 6. Kaynak Bilgisi: Her haber konusunun anlatımının en son cümlesinin sonuna, parantez içinde o habere ait kaynağın ismini ekleyin (Örn: "(BBC)", "(DW)", "(Reuters)"). Bu kaynak ismi size haber girdisinde "Kaynak: [Isim]" şeklinde verilecektir, oradaki ismi birebir kullanın.
 7. ÖNEMLİ - Editör Özel Analizi Koruma Kuralı: Eğer girdi olarak "Analiz #X (Editör Özel Analizi)" başlığı altında bir içerik verilirse, bu analizin metnine, kelimelerine ve cümle yapılarına ASLA MÜDAHALE ETMEYİN. İçeriği hiçbir şekilde değiştirmeden, özetlemeden veya yorum eklemeden, BİREBİR (verbatim) olarak bültenin ilgili bölümüne kopyalayın. Sadece başlıklandırmasını (<h2> veya <h3>) ve paragrafları düzenleyebilirsiniz, metnin kendisine dokunmayın.
-8. Yanıtını JSON formatında ver: {"title": "...", "excerpt": "...", "content": "...", "category": "...", "tags": ["..."]}`;
+8. key_takeaways: Bültenin genelinden çıkarılacak, yatırımcılar ve okuyucular için en önemli 3 can alıcı mesajı/noktayı içeren kısa ve vurucu bir liste (Dizi halinde 3 adet Türkçe cümle).
+9. Yanıtını JSON formatında ver: {"title": "...", "excerpt": "...", "content": "...", "key_takeaways": ["...", "...", "..."], "category": "...", "tags": ["..."]}`;
 
 // Stable raw HTTPS request helper to bypass Node.js native fetch / undici socket drop bugs
 function makeRawGroqRequest(apiKey, payload) {

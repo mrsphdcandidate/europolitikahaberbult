@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initAutoSave();
   initRichTextEditor();
   checkCompiledNewsletterData();
+  initSocialMediaHelper();
 });
 
 /* ---------- Sidebar Toggle (Mobile) ---------- */
@@ -132,10 +133,21 @@ function initAIProcessing() {
 }
 
 function populateEditorFields(data) {
+  let ktString = '';
+  if (data.key_takeaways) {
+    if (Array.isArray(data.key_takeaways)) {
+      ktString = data.key_takeaways.join('\n');
+    } else {
+      ktString = data.key_takeaways;
+    }
+  }
+
   const fields = {
     title: data.title || '',
     excerpt: data.excerpt || data.summary || '',
     content: data.content || data.body || '',
+    editor_analysis: data.editor_analysis || '',
+    key_takeaways: ktString,
     category: data.category || '',
     tags: Array.isArray(data.tags) ? data.tags.join(', ') : (data.tags || ''),
   };
@@ -946,4 +958,40 @@ function checkCompiledNewsletterData() {
   } catch (error) {
     console.error('Error parsing compiled newsletter data:', error);
   }
+}
+
+/* ---------- Sosyal Medya Paylaşım Yardımcısı ---------- */
+function initSocialMediaHelper() {
+  const copyButtons = document.querySelectorAll('.btn-copy-social');
+  copyButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetId = btn.getAttribute('data-target');
+      const textarea = document.getElementById(targetId);
+      if (!textarea) return;
+
+      textarea.select();
+      textarea.setSelectionRange(0, 99999); // For mobile devices
+
+      try {
+        navigator.clipboard.writeText(textarea.value);
+        showNotification('Metin başarıyla panoya kopyalandı!', 'success');
+        
+        // Temporarily change button text
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '✅ Kopyalandı!';
+        setTimeout(() => {
+          btn.innerHTML = originalText;
+        }, 2000);
+      } catch (err) {
+        console.error('Clipboard copy failed:', err);
+        // Fallback copy method
+        try {
+          document.execCommand('copy');
+          showNotification('Metin başarıyla panoya kopyalandı!', 'success');
+        } catch (e) {
+          showNotification('Kopyalama başarısız oldu.', 'error');
+        }
+      }
+    });
+  });
 }

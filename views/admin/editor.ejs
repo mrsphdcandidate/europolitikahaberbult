@@ -157,6 +157,20 @@
                       style="width: 100%; border: 1px solid #CBD5E0; border-radius: 6px; padding: 12px; font-family: inherit; font-size: 14px; line-height: 1.5; resize: vertical; box-sizing: border-box;"
                     ><%= (typeof article !== 'undefined' && article && article.editor_analysis) ? article.editor_analysis : '' %></textarea>
                   </div>
+
+                  <div class="form-group" style="margin-top: 1.5rem; border-top: 1px solid #E2E8F0; padding-top: 1.5rem;">
+                    <label for="key_takeaways" style="display: flex; align-items: center; gap: 6px;">
+                      <span style="font-weight: 700; color: #1A1A1A;">💡 3 Maddede Öne Çıkanlar (Opsiyonel)</span>
+                      <span style="font-size: 10px; font-weight: 700; color: #3182CE; background: #EBF8FF; border: 1px solid #BEE3F8; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Özet Maddeleri</span>
+                    </label>
+                    <textarea
+                      id="key_takeaways"
+                      name="key_takeaways"
+                      rows="4"
+                      placeholder="Her satıra tek bir madde gelecek şekilde yazın (maksimum 3 satır/madde).&#10;Örn:&#10;Rusya, Finlandiya sınırındaki demiryolu geçişlerini askıya aldı.&#10;İrlanda altı ay boyunca AB dönem başkanlığını devraldı.&#10;Hyatt İtalya'daki lüks otel portföyünü genişletti."
+                      style="width: 100%; border: 1px solid #CBD5E0; border-radius: 6px; padding: 12px; font-family: inherit; font-size: 14px; line-height: 1.5; resize: vertical; box-sizing: border-box;"
+                    ><%= (typeof article !== 'undefined' && article && article.key_takeaways) ? article.key_takeaways : '' %></textarea>
+                  </div>
                 </div>
               </div>
             </div>
@@ -265,6 +279,63 @@
                 </div>
               </div>
             </div>
+
+            <% if (typeof article !== 'undefined' && article) { %>
+              <!-- Sosyal Medya Paylaşım Yardımcısı -->
+              <div class="card" style="margin-top: 15px;">
+                <div class="card-header" style="background: #1A1A1A; color: #FFFFFF;">
+                  <h2 style="color: #FFFFFF; font-size: 14px; display: flex; align-items: center; gap: 6px;">📱 Sosyal Medya Yardımcısı</h2>
+                </div>
+                <div class="card-body" style="padding: 15px; font-family: 'Inter', sans-serif;">
+                  <p style="font-size: 12px; color: #718096; margin-bottom: 12px; line-height: 1.4;">Yazı yayındayken sosyal mecralarda hızlıca paylaşmanız için hazır yapay zeka taslakları:</p>
+                  
+                  <!-- X / Twitter -->
+                  <div style="margin-bottom: 15px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                      <span style="font-size: 11px; font-weight: 700; color: #1A1A1A; text-transform: uppercase;">𝕏 / Twitter</span>
+                      <button type="button" class="btn-copy-social" data-target="socialTextX" style="background: none; border: none; color: #C53030; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 0;">📋 Kopyala</button>
+                    </div>
+                    <% 
+                      let xText = `📰 ${article.title}\n\n`;
+                      if (article.key_takeaways) {
+                        xText += article.key_takeaways.split('\n').map(l => `• ${l.trim()}`).filter(l => l.length > 2).join('\n') + '\n\n';
+                      } else if (article.excerpt) {
+                        xText += `${article.excerpt}\n\n`;
+                      }
+                      xText += `Detaylı analiz için okuyun:\n🔗 https://europolitika.up.railway.app/haber/${article.slug}\n\n#politik #ekonomi #yatirim`;
+                    %>
+                    <textarea id="socialTextX" readonly style="width: 100%; height: 110px; font-size: 12px; border: 1px solid #E2E8F0; border-radius: 4px; padding: 8px; background: #F8F9FA; resize: none; font-family: inherit; color: #4A5568; box-sizing: border-box;"><%= xText %></textarea>
+                  </div>
+
+                  <!-- LinkedIn -->
+                  <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                      <span style="font-size: 11px; font-weight: 700; color: #1A1A1A; text-transform: uppercase;">💼 LinkedIn</span>
+                      <button type="button" class="btn-copy-social" data-target="socialTextLI" style="background: none; border: none; color: #C53030; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 0;">📋 Kopyala</button>
+                    </div>
+                    <% 
+                      let liText = `📊 EuroPolitika Özel Analizi: ${article.title}\n\n`;
+                      if (article.excerpt) {
+                        liText += `${article.excerpt}\n\n`;
+                      }
+                      if (article.key_takeaways) {
+                        liText += `🔍 Öne Çıkan Başlıklar:\n` + article.key_takeaways.split('\n').map(l => `- ${l.trim()}`).filter(l => l.length > 2).join('\n') + '\n\n';
+                      }
+                      liText += `Makalenin tamamı ve derinlemesine politik ekonomi değerlendirmesi web sitemizde yayınlandı:\n🔗 https://europolitika.up.railway.app/haber/${article.slug}\n\n#politikekonomi #yatirim #makroekonomi #merkezbankasi`;
+                    %>
+                    <textarea id="socialTextLI" readonly style="width: 100%; height: 130px; font-size: 12px; border: 1px solid #E2E8F0; border-radius: 4px; padding: 8px; background: #F8F9FA; resize: none; font-family: inherit; color: #4A5568; box-sizing: border-box;"><%= liText %></textarea>
+                  </div>
+
+                  <!-- Social Sharing Image -->
+                  <% if (article.social_image) { %>
+                    <div style="margin-top: 15px; border-top: 1px solid #E2E8F0; padding-top: 15px; text-align: center;">
+                      <span style="font-size: 11px; font-weight: 700; color: #718096; text-transform: uppercase; display: block; margin-bottom: 8px;">Sosyal Paylaşım Görseli</span>
+                      <a href="<%= article.social_image %>" download="<%= article.slug %>-sosyal.png" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 6px; width: 100%; justify-content: center; font-size: 12px;">📥 Görseli İndir</a>
+                    </div>
+                  <% } %>
+                </div>
+              </div>
+            <% } %>
 
             <!-- Actions -->
             <div class="card">

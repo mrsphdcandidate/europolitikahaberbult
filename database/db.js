@@ -27,6 +27,7 @@ db.exec(`
     tags TEXT,
     status TEXT DEFAULT 'draft' CHECK(status IN ('draft', 'published')),
     editor_analysis TEXT,
+    key_takeaways TEXT,
     views INTEGER DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -50,6 +51,12 @@ try {
 
 try {
   db.exec('ALTER TABLE articles ADD COLUMN editor_analysis TEXT');
+} catch (e) {
+  // Column already exists, ignore
+}
+
+try {
+  db.exec('ALTER TABLE articles ADD COLUMN key_takeaways TEXT');
 } catch (e) {
   // Column already exists, ignore
 }
@@ -100,10 +107,10 @@ function getArticleById(id) {
   return db.prepare('SELECT * FROM articles WHERE id = ?').get(id);
 }
 
-function createArticle({ title, slug, excerpt, content, cover_image, social_image, editor_analysis, category, tags, status }) {
+function createArticle({ title, slug, excerpt, content, cover_image, social_image, editor_analysis, key_takeaways, category, tags, status }) {
   const stmt = db.prepare(`
-    INSERT INTO articles (title, slug, excerpt, content, cover_image, social_image, editor_analysis, category, tags, status)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO articles (title, slug, excerpt, content, cover_image, social_image, editor_analysis, key_takeaways, category, tags, status)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
   const result = stmt.run(
     title,
@@ -113,6 +120,7 @@ function createArticle({ title, slug, excerpt, content, cover_image, social_imag
     cover_image || null,
     social_image || null,
     editor_analysis || null,
+    key_takeaways || null,
     category || 'Genel',
     tags || null,
     status || 'draft'
@@ -121,7 +129,7 @@ function createArticle({ title, slug, excerpt, content, cover_image, social_imag
 }
 
 function updateArticle(id, fields) {
-  const allowedFields = ['title', 'slug', 'excerpt', 'content', 'cover_image', 'social_image', 'editor_analysis', 'category', 'tags', 'status'];
+  const allowedFields = ['title', 'slug', 'excerpt', 'content', 'cover_image', 'social_image', 'editor_analysis', 'key_takeaways', 'category', 'tags', 'status'];
   const setClauses = [];
   const values = [];
 
