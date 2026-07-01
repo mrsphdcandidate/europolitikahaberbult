@@ -5,7 +5,7 @@ const apiKeys = (process.env.GROQ_API_KEYS
   : [process.env.GROQ_API_KEY]
 ).filter(k => k && k.startsWith('gsk_'));
 
-const clients = apiKeys.map(key => new Groq({ apiKey: key }));
+const clients = apiKeys.map(key => new Groq({ apiKey: key, timeout: 180000 }));
 let currentKeyIndex = 0;
 
 const SYSTEM_PROMPT = `Sen profesyonel bir haber editörüsün. Sana verilen ham metni veya haber içeriğini, ANLAMINI VE ÖNEMLİ DETAYLARINI HİÇBİR ŞEKİLDE DEĞİŞTİRMEDEN VE KISALTMA YAPMADAN özgün cümlelerle yeniden yazmalısın (paraphrase). Yanıtını JSON formatında ver: {"title": "...", "excerpt": "...", "content": "...", "category": "...", "tags": ["..."], "image_keywords": "..."}
