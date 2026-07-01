@@ -33,14 +33,15 @@ async function processContent(rawText) {
     throw new Error('Tanımlı Groq API anahtarı bulunamadı. Lütfen .env dosyasında GROQ_API_KEY veya GROQ_API_KEYS tanımlayın.');
   }
 
+  const maxAttempts = Math.max(clients.length * 2, 3);
   let attempts = 0;
 
-  while (attempts < clients.length) {
+  while (attempts < maxAttempts) {
     const activeIndex = (currentKeyIndex + attempts) % clients.length;
     const client = clients[activeIndex];
 
     try {
-      console.log(`[Groq AI] API anahtarı deneniyor (İndeks: ${activeIndex}/${clients.length - 1})...`);
+      console.log(`[Groq AI] API anahtarı deneniyor (İndeks: ${activeIndex}/${clients.length - 1}, Deneme: ${attempts + 1}/${maxAttempts})...`);
       const chatCompletion = await client.chat.completions.create({
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
@@ -70,35 +71,14 @@ async function processContent(rawText) {
       return parsed;
 
     } catch (error) {
-      console.warn(`[Groq AI] İndeks ${activeIndex} anahtarı başarısız oldu: ${error.message}`);
-
-      const status = error.status;
-      const msg = error.message ? error.message.toLowerCase() : '';
-      const isLimitOrCreditError = 
-        status === 401 || 
-        status === 429 || 
-        msg.includes('rate_limit') ||
-        msg.includes('insufficient_funds') ||
-        msg.includes('quota') ||
-        msg.includes('limit') ||
-        msg.includes('credit') ||
-        msg.includes('balance') ||
-        msg.includes('authorized') ||
-        msg.includes('auth');
-
-      if (isLimitOrCreditError) {
-        console.log(`[Groq AI] Limit/Kredi aşımı veya yetki hatası algılandı. Diğer anahtara geçiliyor...`);
-        attempts++;
-      } else {
-        // Parse error or system issue, throw directly
-        throw error;
-      }
+      console.warn(`[Groq AI] İndeks ${activeIndex} anahtarı başarısız oldu (Hata: ${error.message}). Yeniden deneniyor...`);
+      attempts++;
+      // Wait 1 second before retrying to let sockets/network recover
+      await new Promise(resolve => setTimeout(resolve, 1000));
     }
   }
 
-  // If all keys fail
-  currentKeyIndex = (currentKeyIndex + 1) % clients.length;
-  throw new Error('Groq Kredisi Bitti! (Kayıtlı tüm API anahtarlarının limiti veya bakiyesi tükendi.)');
+  throw new Error('Groq AI Servisi Başarısız Oldu! Sunucu veya ağ hatası ya da tüm API anahtarlarının limiti/bakiyesi tükendi.');
 }
 
 const NEWSLETTER_SYSTEM_PROMPT = `Sen bir politik ekonomi editörüsün. Sana verilen birden fazla haber içeriğini birleştirerek yatırımcılara ve okuyuculara yönelik tek bir haftalık/günlük bülten (digest) makalesi oluşturmalısın. 
@@ -122,14 +102,15 @@ async function processNewsletterContent(combinedText) {
     throw new Error('Tanımlı Groq API anahtarı bulunamadı. Lütfen .env dosyasında GROQ_API_KEY veya GROQ_API_KEYS tanımlayın.');
   }
 
+  const maxAttempts = Math.max(clients.length * 2, 3);
   let attempts = 0;
 
-  while (attempts < clients.length) {
+  while (attempts < maxAttempts) {
     const activeIndex = (currentKeyIndex + attempts) % clients.length;
     const client = clients[activeIndex];
 
     try {
-      console.log(`[Groq AI Newsletter] API anahtarı deneniyor (İndeks: ${activeIndex}/${clients.length - 1})...`);
+      console.log(`[Groq AI Newsletter] API anahtarı deneniyor (İndeks: ${activeIndex}/${clients.length - 1}, Deneme: ${attempts + 1}/${maxAttempts})...`);
       const chatCompletion = await client.chat.completions.create({
         messages: [
           { role: 'system', content: NEWSLETTER_SYSTEM_PROMPT },
@@ -157,32 +138,14 @@ async function processNewsletterContent(combinedText) {
       return parsed;
 
     } catch (error) {
-      console.warn(`[Groq AI Newsletter] İndeks ${activeIndex} anahtarı başarısız oldu: ${error.message}`);
-
-      const status = error.status;
-      const msg = error.message ? error.message.toLowerCase() : '';
-      const isLimitOrCreditError = 
-        status === 401 || 
-        status === 429 || 
-        msg.includes('rate_limit') ||
-        msg.includes('insufficient_funds') ||
-        msg.includes('quota') ||
-        msg.includes('limit') ||
-        msg.includes('credit') ||
-        msg.includes('balance') ||
-        msg.includes('authorized') ||
-        msg.includes('auth');
-
-      if (isLimitOrCreditError) {
-        attempts++;
-      } else {
-        throw error;
-      }
+      console.warn(`[Groq AI Newsletter] İndeks ${activeIndex} anahtarı başarısız oldu (Hata: ${error.message}). Yeniden deneniyor...`);
+      attempts++;
+      // Wait 1 second before retrying to let sockets/network recover
+      await new Promise(resolve => setTimeout(resolve, 1000));
     }
   }
 
-  currentKeyIndex = (currentKeyIndex + 1) % clients.length;
-  throw new Error('Groq Kredisi Bitti! (Kayıtlı tüm API anahtarlarının limiti veya bakiyesi tükendi.)');
+  throw new Error('Groq AI Servisi Başarısız Oldu! Sunucu veya ağ hatası ya da tüm API anahtarlarının limiti/bakiyesi tükendi.');
 }
 
 module.exports = { processContent, processNewsletterContent };
