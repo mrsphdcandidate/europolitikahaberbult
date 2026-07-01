@@ -255,7 +255,7 @@
             <!-- Actions -->
             <div class="card">
               <div class="card-body">
-                <button type="submit" class="btn btn-primary btn-full btn-lg">
+                <button type="button" id="btnSubmitEditor" class="btn btn-primary btn-full btn-lg">
                   <%= (typeof article !== 'undefined' && article) ? '💾 Güncelle' : '🚀 Yayınla' %>
                 </button>
                 <% if (typeof article !== 'undefined' && article) { %>

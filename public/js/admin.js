@@ -158,9 +158,20 @@ function populateEditorFields(data) {
     }
   });
 
-  // Update CKEditor content
+  // Update CKEditor content with instanceReady handling to prevent race conditions
   if (window.CKEDITOR && CKEDITOR.instances.content) {
-    CKEDITOR.instances.content.setData(fields.content);
+    try {
+      if (CKEDITOR.instances.content.instanceReady) {
+        CKEDITOR.instances.content.setData(fields.content);
+      } else {
+        CKEDITOR.instances.content.once('instanceReady', () => {
+          CKEDITOR.instances.content.setData(fields.content);
+        });
+      }
+    } catch (e) {
+      console.error('CKEditor setData error:', e);
+      CKEDITOR.instances.content.setData(fields.content);
+    }
   }
 
   // Set cover image if returned from backend API (resolved statically)
@@ -607,12 +618,17 @@ function initAutoSave() {
 
   // Clear draft and resolve inline images on form submission
   const form = document.querySelector('.editor-form');
-  if (form) {
+  const btnSubmitEditor = document.getElementById('btnSubmitEditor');
+  if (form && btnSubmitEditor) {
     let formSubmitted = false;
 
-    form.addEventListener('submit', async (e) => {
+    // Prevent default form submission (e.g. on Enter key press)
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+    });
+
+    btnSubmitEditor.addEventListener('click', async () => {
       if (formSubmitted) return;
-      e.preventDefault(); // Always prevent default first to run async tasks
 
       // Sync CKEditor HTML back to textarea
       if (window.CKEDITOR && CKEDITOR.instances.content) {
@@ -620,11 +636,9 @@ function initAutoSave() {
       }
 
       // Show status on button
-      const submitBtn = form.querySelector('button[type="submit"]');
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Kaydediliyor...';
-      }
+      btnSubmitEditor.disabled = true;
+      const originalText = btnSubmitEditor.textContent;
+      btnSubmitEditor.textContent = 'Kaydediliyor...';
 
       const contentEl = document.getElementById('content');
       
@@ -650,7 +664,7 @@ function initAutoSave() {
             if (!finalUrl) {
               const safeKeywords = ['finance', 'money', 'bank', 'business', 'market', 'politics', 'government', 'meeting', 'europe', 'travel', 'beach', 'hotel', 'resort', 'nature', 'restaurant'];
               let chosenKeyword = 'business';
-              const promptLower = prompt.toLowerCase();
+              const promptLower = prompt ? prompt.toLowerCase() : '';
               for (const kw of safeKeywords) {
                 if (promptLower.includes(kw)) {
                   chosenKeyword = kw;
@@ -675,14 +689,28 @@ function initAutoSave() {
               img.src = finalUrl;
               img.alt = prompt;
               img.className = 'article-inline-image';
+              img.setAttribute('data-id', id);
+              if (prompt) img.setAttribute('data-prompt', prompt);
               ph.parentNode.replaceChild(img, ph);
             } else {
               ph.remove();
             }
           }
-          contentEl.value = doc.body.innerHTML;
+          const resolvedHtml = doc.body.innerHTML;
+          contentEl.value = resolvedHtml;
+          
+          // Update CKEditor content and destroy instance so it won't overwrite on submit
+          if (window.CKEDITOR && CKEDITOR.instances.content) {
+            CKEDITOR.instances.content.setData(resolvedHtml);
+            CKEDITOR.instances.content.destroy(true);
+          }
         } catch (error) {
           console.error('Image resolving error on submit:', error);
+        }
+      } else {
+        // If no placeholders, still destroy CKEditor cleanly to avoid any submit issues
+        if (window.CKEDITOR && CKEDITOR.instances.content) {
+          CKEDITOR.instances.content.destroy(true);
         }
       }
 

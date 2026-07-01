@@ -114,7 +114,7 @@ async function autoResolvePlaceholdersToScrapedImages(htmlContent, scrapedImages
 
   try {
     const parser = cheerio.load(htmlContent);
-    const placeholders = parser('img.image-placeholder');
+    const placeholders = parser('.image-placeholder');
 
     for (let i = 0; i < placeholders.length; i++) {
       const ph = placeholders[i];
