@@ -108,9 +108,9 @@ async function downloadAndSaveAsWebP(targetUrl) {
   }
 }
 
-// Helper to automatically download and save stock photos for all image placeholders in the content
-async function autoResolveAllPlaceholders(htmlContent) {
-  if (!htmlContent) return htmlContent;
+// Helper to automatically download stock photos for placeholders and add them to resolvedImages array
+async function autoResolvePlaceholdersToScrapedImages(htmlContent, scrapedImages) {
+  if (!htmlContent) return;
 
   try {
     const parser = cheerio.load(htmlContent);
@@ -118,33 +118,33 @@ async function autoResolveAllPlaceholders(htmlContent) {
 
     for (let i = 0; i < placeholders.length; i++) {
       const ph = placeholders[i];
+      const id = parser(ph).attr('data-id');
       const prompt = parser(ph).attr('data-prompt') || 'news';
       const search = parser(ph).attr('data-search') || prompt;
+
+      if (!id) continue;
+
+      // Check if slot is already resolved (e.g. from a URL cover image scrape)
+      const existing = scrapedImages.find(img => img.slotId === parseInt(id));
+      if (existing) continue;
 
       // Use clean english search term for loremflickr
       const cleanSearch = encodeURIComponent(search.replace(/[^a-zA-Z0-9\s]/g, '').trim());
       const stockUrl = `https://loremflickr.com/800/500/${cleanSearch}`;
 
-      console.log(`[Newsletter Compiler] Haber içi görsel otomatik indiriliyor: Prompt: ${prompt}, Arama: ${search} -> ${stockUrl}`);
+      console.log(`[Newsletter Compiler] Slot ${id} için görsel otomatik indiriliyor: Prompt: ${prompt}, Arama: ${search} -> ${stockUrl}`);
 
       try {
         const localUrl = await downloadAndSaveAsWebP(stockUrl);
         if (localUrl) {
-          // Replace this placeholder tag with a real image tag
-          parser(ph).replaceWith(`<img class="article-inline-image" src="${localUrl}" alt="${prompt.replace(/"/g, '&quot;')}">`);
-        } else {
-          parser(ph).remove();
+          scrapedImages.push({ slotId: parseInt(id), url: localUrl });
         }
       } catch (err) {
-        console.warn(`[Newsletter Compiler] Haber içi görsel indirilemedi. Hata: ${err.message}`);
-        parser(ph).remove();
+        console.warn(`[Newsletter Compiler] Slot ${id} otomatik görsel indirme hatası: ${err.message}`);
       }
     }
-
-    return parser('body').html() || htmlContent;
   } catch (e) {
-    console.error('autoResolveAllPlaceholders error:', e);
-    return htmlContent;
+    console.error('autoResolvePlaceholdersToScrapedImages error:', e);
   }
 }
 
@@ -509,9 +509,10 @@ router.post('/ai/process-newsletter', async (req, res) => {
     const collageUrl = await createCollage(collageImagePaths);
     result.cover_image = collageUrl;
  
-    // Auto-resolve all image placeholders on the backend
+    // Auto-resolve stock images for placeholders and push to resolvedImages
     if (result.content) {
-      result.content = await autoResolveAllPlaceholders(result.content);
+      await autoResolvePlaceholdersToScrapedImages(result.content, scrapedImages);
+      result.content = preparePlaceholdersForEditor(result.content);
     }
 
     // 4. Return result and resolved slot images
