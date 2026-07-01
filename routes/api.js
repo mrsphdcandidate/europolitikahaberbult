@@ -244,7 +244,6 @@ async function createCollage(imagePaths) {
   const absolutePaths = imagePaths
     .filter(Boolean)
     .map(p => {
-      if (path.isAbsolute(p)) return p;
       const baseName = path.basename(p);
       return path.join(__dirname, '..', 'data', 'uploads', baseName);
     })
