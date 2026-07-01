@@ -13,7 +13,7 @@ const sharp = require('sharp');
 // Multer storage configuration
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '..', 'public', 'uploads'));
+    cb(null, path.join(__dirname, '..', 'data', 'uploads'));
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -58,7 +58,7 @@ async function downloadAndSaveAsWebP(targetUrl) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     const safeExt = path.extname(filename) || '.jpg';
     const localFilename = uniqueSuffix + safeExt;
-    const localPath = path.join(__dirname, '..', 'public', 'uploads', localFilename);
+    const localPath = path.join(__dirname, '..', 'data', 'uploads', localFilename);
 
     console.log(`[Downloader Helper] Görsel indiriliyor: ${targetUrl} -> ${localPath}`);
 
@@ -377,7 +377,7 @@ router.post('/upload-card', (req, res) => {
   }
 
   try {
-    const cardsDir = path.join(__dirname, '..', 'public', 'uploads', 'cards');
+    const cardsDir = path.join(__dirname, '..', 'data', 'uploads', 'cards');
     if (!fs.existsSync(cardsDir)) {
       fs.mkdirSync(cardsDir, { recursive: true });
     }

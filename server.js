@@ -5,8 +5,8 @@ const path = require('path');
 const fs = require('fs');
 const { db, getAllArticles, createArticle } = require('./database/db');
 
-// Ensure public/uploads directory exists
-const uploadsDir = path.join(__dirname, 'public', 'uploads');
+// Ensure data/uploads directory exists (within persistent volume)
+const uploadsDir = path.join(__dirname, 'data', 'uploads');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
@@ -20,6 +20,8 @@ app.set('views', path.join(__dirname, 'views'));
 
 // Static files
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/uploads', express.static(path.join(__dirname, 'data', 'uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 
 // Body parser
 app.use(express.json());
