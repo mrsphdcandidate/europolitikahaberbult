@@ -865,7 +865,9 @@ function initRichTextEditor() {
     CKEDITOR.config.allowedContent = true;
     CKEDITOR.replace('content', {
       height: 400,
-      removePlugins: 'about,forms,iframe'
+      removePlugins: 'about,forms,iframe',
+      allowedContent: true,
+      extraAllowedContent: 'img[*]; div[*]; span[*]; a[*]'
     });
   }
 }

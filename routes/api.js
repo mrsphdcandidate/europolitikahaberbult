@@ -436,7 +436,7 @@ router.post('/ai/process-newsletter', async (req, res) => {
         
         processedStories.push({
           type: 'text',
-          title: `Haber Konusu #${processedStories.length + 1}`,
+          title: `Analiz #${processedStories.length + 1}`,
           text: text,
           cover_image: null,
           source: 'Editör Özel'
@@ -453,7 +453,7 @@ router.post('/ai/process-newsletter', async (req, res) => {
       if (story.type === 'url') {
         return `Haber #${idx + 1} (Link):\nBaşlık: ${story.title}\nKaynak: ${story.source} (${story.url})\nİçerik:\n${story.text}`;
       } else {
-        return `Haber #${idx + 1} (Yazı / Paragraf):\nİçerik:\n${story.text}`;
+        return `Analiz #${idx + 1} (Editör Özel Analizi):\nİçerik:\n${story.text}`;
       }
     }).join('\n\n---\n\n');
 
