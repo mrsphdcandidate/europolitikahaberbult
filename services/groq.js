@@ -34,7 +34,8 @@ const NEWSLETTER_SYSTEM_PROMPT = `Sen bir politik ekonomi editörüsün. Sana ve
 4. Kategori: Makroekonomi, Türkiye Ekonomisi, Küresel Politika, Piyasalar, Analiz seçeneklerinden biri (bültenin geneline en uygun olanı).
 5. Etiketler: Bülten konularıyla ilgili 3-5 anahtar kelime.
 6. Kaynak Bilgisi: Her haber konusunun anlatımının en son cümlesinin sonuna, parantez içinde o habere ait kaynağın ismini ekleyin (Örn: "(BBC)", "(DW)", "(Reuters)"). Bu kaynak ismi size haber girdisinde "Kaynak: [Isim]" şeklinde verilecektir, oradaki ismi birebir kullanın.
-7. Yanıtını JSON formatında ver: {"title": "...", "excerpt": "...", "content": "...", "category": "...", "tags": ["..."]}`;
+7. ÖNEMLİ - Editör Özel Analizi Koruma Kuralı: Eğer girdi olarak "Analiz #X (Editör Özel Analizi)" başlığı altında bir içerik verilirse, bu analizin metnine, kelimelerine ve cümle yapılarına ASLA MÜDAHALE ETMEYİN. İçeriği hiçbir şekilde değiştirmeden, özetlemeden veya yorum eklemeden, BİREBİR (verbatim) olarak bültenin ilgili bölümüne kopyalayın. Sadece başlıklandırmasını (<h2> veya <h3>) ve paragrafları düzenleyebilirsiniz, metnin kendisine dokunmayın.
+8. Yanıtını JSON formatında ver: {"title": "...", "excerpt": "...", "content": "...", "category": "...", "tags": ["..."]}`;
 
 // Stable raw HTTPS request helper to bypass Node.js native fetch / undici socket drop bugs
 function makeRawGroqRequest(apiKey, payload) {
