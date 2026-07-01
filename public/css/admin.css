@@ -1262,3 +1262,10 @@ tbody tr:last-child td {
     padding: 0;
   }
 }
+
+/* Hide CKEditor non-secure version check warning overlay */
+.cke_notification_warning,
+.cke_notifications_area,
+.cke_notification {
+  display: none !important;
+}

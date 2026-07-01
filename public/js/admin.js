@@ -863,11 +863,13 @@ function initRichTextEditor() {
 
     // Disable content filtering to prevent stripping custom image placeholders
     CKEDITOR.config.allowedContent = true;
+    CKEDITOR.config.versionCheck = false;
     CKEDITOR.replace('content', {
       height: 400,
       removePlugins: 'about,forms,iframe',
       allowedContent: true,
-      extraAllowedContent: 'img[*]; div[*]; span[*]; a[*]'
+      extraAllowedContent: 'img[*]; div[*]; span[*]; a[*]',
+      versionCheck: false
     });
   }
 }
