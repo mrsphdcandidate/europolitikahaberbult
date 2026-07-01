@@ -73,8 +73,12 @@ async function downloadAndSaveAsWebP(targetUrl) {
         }
       }, (response) => {
         if (response.statusCode === 301 || response.statusCode === 302) {
-          // Follow redirect
-          resolve(downloadAndSaveAsWebP(response.headers.location));
+          // Follow redirect (resolve relative path against targetUrl)
+          let redirectUrl = response.headers.location;
+          if (!redirectUrl.startsWith('http://') && !redirectUrl.startsWith('https://')) {
+            redirectUrl = new URL(redirectUrl, targetUrl).toString();
+          }
+          resolve(downloadAndSaveAsWebP(redirectUrl));
           return;
         }
 
