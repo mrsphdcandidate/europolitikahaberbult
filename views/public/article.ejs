@@ -385,6 +385,44 @@
   </div>
 </div>
 
+<!-- Hidden container for generating shareable image card (Tall/Newsletter Banner) -->
+<div id="shareCardTemplateTall" style="position: absolute; left: -9999px; top: -9999px; width: 480px; background-color: #F8F7F4; padding: 40px; box-sizing: border-box; border: 4px solid #C53030; border-radius: 12px; font-family: 'Inter', sans-serif;">
+  <div style="text-align: center; border-bottom: 2px solid #1A1A1A; padding-bottom: 20px; margin-bottom: 25px;">
+    <span style="font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 900; letter-spacing: 2px; color: #1A1A1A;">EURO<span style="color: #C53030;">POLITIKA</span></span>
+    <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 3px; color: #718096; margin-top: 6px; font-weight: 700;">Haftalık Politik Ekonomi Bülteni</div>
+  </div>
+  
+  <% if (hasEditorAnalysis) { %>
+    <div style="display: inline-block; background-color: #C53030; color: #FFFFFF; font-size: 10px; font-weight: 700; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; font-family: 'Inter', sans-serif;">⭐ ÖZEL EDİTÖR ANALİZİ</div>
+  <% } else if (article.category) { %>
+    <div style="font-size: 12px; font-weight: 700; color: #C53030; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px;"><%= article.category %></div>
+  <% } %>
+  
+  <h1 style="font-family: 'Playfair Display', serif; font-size: 24px; line-height: 1.35; color: #1A1A1A; margin-bottom: 20px; font-weight: 800;"><%= article.title %></h1>
+  
+  <% if (article.cover_image) { %>
+    <div style="width: 100%; height: 220px; border-radius: 8px; overflow: hidden; margin-bottom: 25px; border: 1px solid #E8E4DE;">
+      <img src="<%= article.cover_image %>" style="width: 100%; height: 100%; object-fit: cover;" crossorigin="anonymous">
+    </div>
+  <% } %>
+  
+  <div class="card-description-block" style="font-size: 14px; line-height: 1.6; color: #333; margin-bottom: 25px; font-weight: 400;">
+    <%= article.excerpt || (article.content ? truncate(article.content.replace(/<[^>]*>/g, ''), 250) : '') %>
+  </div>
+
+  <!-- Dynamic Advertisement/AI System Promo CTA inside Tall Card -->
+  <div style="background-color: #1A1A1A; color: #FFFFFF; padding: 18px; border-radius: 8px; margin-bottom: 25px; text-align: center; border: 1px solid #C53030; font-family: 'Inter', sans-serif;">
+    <div style="font-size: 9px; font-weight: 800; color: #C53030; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px;">EuroPolitika AI Bülten</div>
+    <div style="font-size: 12px; font-weight: 700; color: #FFFFFF; line-height: 1.4; margin-bottom: 4px;">Yapay Zeka Destekli Ortadoğu & Küresel Ekonomi Analizleri</div>
+    <div style="font-size: 10px; color: #A0AEC0;">Hemen üye olun, gelişmeler e-postanıza gelsin!</div>
+  </div>
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #E8E4DE; padding-top: 20px;">
+    <div style="font-size: 11px; color: #718096;"><%= formatDate(article.published_at || article.created_at) %></div>
+    <div style="font-size: 12px; font-weight: 600; color: #1A1A1A;">europolitika.up.railway.app</div>
+  </div>
+</div>
+
 <!-- Share Preview Modal -->
 <div id="sharePreviewModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 99999; opacity: 0; visibility: hidden; transition: all 0.3s ease; backdrop-filter: blur(8px);">
   <div style="background: #FFFFFF; border-radius: 12px; max-width: 480px; width: 90%; max-height: 90vh; overflow-y: auto; padding: 24px; box-shadow: 0 15px 40px rgba(0,0,0,0.3); transform: scale(0.9); transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; box-sizing: border-box;" id="sharePreviewContent">
@@ -396,6 +434,7 @@
       <button class="tab-btn active" data-template="Classic" style="padding: 6px 12px; border-radius: 4px; border: 1px solid #C53030; background: #C53030; color: #FFFFFF; font-weight: 600; font-size: 12px; cursor: pointer; outline: none;">Klasik</button>
       <button class="tab-btn" data-template="Dark" style="padding: 6px 12px; border-radius: 4px; border: 1px solid #E8E4DE; background: transparent; color: #718096; font-weight: 600; font-size: 12px; cursor: pointer; outline: none;">Karanlık</button>
       <button class="tab-btn" data-template="Quote" style="padding: 6px 12px; border-radius: 4px; border: 1px solid #E8E4DE; background: transparent; color: #718096; font-weight: 600; font-size: 12px; cursor: pointer; outline: none;">Alıntı</button>
+      <button class="tab-btn" data-template="Tall" style="padding: 6px 12px; border-radius: 4px; border: 1px solid #E8E4DE; background: transparent; color: #718096; font-weight: 600; font-size: 12px; cursor: pointer; outline: none;">Uzun (Bülten)</button>
     </div>
     
     <div id="sharePreviewImageContainer" style="width: 100%; border: 1px solid #E8E4DE; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 24px; text-align: center; background: #F8F7F4; line-height: 0;">
@@ -461,6 +500,16 @@
           </div>
         `;
 
+        // Generate Tall list HTML
+        const tallListHtml = `
+          <div style="margin-top: 15px; margin-bottom: 25px; text-align: left;">
+            <div style="font-size: 11px; font-weight: 700; color: #C53030; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; font-family: 'Inter', sans-serif;">BÜLTEN İÇERİĞİ</div>
+            <ul style="margin: 0; padding-left: 20px; list-style-type: square; color: #1A1A1A; font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 600; line-height: 1.5; display: flex; flex-direction: column; gap: 8px;">
+              ${subheadings.map(sub => `<li>${sub}</li>`).join('')}
+            </ul>
+          </div>
+        `;
+
         // Replace the description blocks in templates
         const classicDesc = document.querySelector('#shareCardTemplate .card-description-block');
         if (classicDesc) classicDesc.innerHTML = classicListHtml;
@@ -470,6 +519,9 @@
 
         const quoteDesc = document.querySelector('#shareCardTemplateQuote .card-description-block');
         if (quoteDesc) quoteDesc.innerHTML = quoteListHtml;
+
+        const tallDesc = document.querySelector('#shareCardTemplateTall .card-description-block');
+        if (tallDesc) tallDesc.innerHTML = tallListHtml;
       }
     }
 
@@ -488,6 +540,7 @@
       let targetId = 'shareCardTemplate';
       if (activeTemplate === 'Dark') targetId = 'shareCardTemplateDark';
       if (activeTemplate === 'Quote') targetId = 'shareCardTemplateQuote';
+      if (activeTemplate === 'Tall') targetId = 'shareCardTemplateTall';
       
       const shareCard = document.getElementById(targetId);
       
