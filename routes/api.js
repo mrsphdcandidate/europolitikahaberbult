@@ -236,67 +236,234 @@ function getDomainSourceName(url) {
   }
 }
 
-// AI newsletter processing endpoint (compiles multiple URLs)
-router.post('/ai/process-newsletter', async (req, res) => {
-  const { urls } = req.body; // array of urls
+// Helper to create a grid/collage image of up to 7 images
+async function createCollage(imagePaths) {
+  if (!imagePaths || imagePaths.length === 0) return null;
+  
+  // Filter out empty entries and map to absolute local paths
+  const absolutePaths = imagePaths
+    .filter(Boolean)
+    .map(p => {
+      if (path.isAbsolute(p)) return p;
+      const baseName = path.basename(p);
+      return path.join(__dirname, '..', 'data', 'uploads', baseName);
+    })
+    .filter(p => fs.existsSync(p));
 
-  if (!urls || !Array.isArray(urls) || urls.filter(Boolean).length === 0) {
-    return res.status(400).json({ success: false, message: 'En az bir haber linki girilmelidir.' });
-  }
-
-  const activeUrls = urls.filter(url => url && url.trim().startsWith('http'));
-  console.log(`[Newsletter Compiler] ${activeUrls.length} adet haber linki işleniyor...`);
+  if (absolutePaths.length === 0) return null;
+  
+  const paths = absolutePaths.slice(0, 7);
+  const numImages = paths.length;
+  
+  const filename = `collage-${Date.now()}-${Math.round(Math.random() * 1E9)}.webp`;
+  const destPath = path.join(__dirname, '..', 'data', 'uploads', filename);
 
   try {
-    const scrapedArticles = [];
-    const scrapedImages = []; // will store paths of downloaded images
+    // If only 1 image, crop it to standard 1200x600 px for nice cover fit
+    if (numImages === 1) {
+      await sharp(paths[0])
+        .resize(1200, 600, { fit: 'cover' })
+        .webp({ quality: 85 })
+        .toFile(destPath);
+      return '/uploads/' + filename;
+    }
 
-    // 1. Scrape all articles
-    for (let i = 0; i < activeUrls.length; i++) {
-      const url = activeUrls[i];
-      try {
-        console.log(`[Newsletter Compiler] Kazınıyor (${i + 1}/${activeUrls.length}): ${url}`);
-        const scraped = await scrapeUrl(url);
-        if (scraped && scraped.text && scraped.text.length > 50) {
-          let localImageUrl = null;
-          if (scraped.cover_image) {
-            console.log(`[Newsletter Compiler] Kaynak görsel yerelleştiriliyor: ${scraped.cover_image}`);
-            localImageUrl = await downloadAndSaveAsWebP(scraped.cover_image);
+    const canvasWidth = 1200;
+    const canvasHeight = 600;
+    const gap = 6; // gap width in pixels
+    
+    // Create dark base canvas background
+    const base = sharp({
+      create: {
+        width: canvasWidth,
+        height: canvasHeight,
+        channels: 4,
+        background: { r: 26, g: 26, b: 26, alpha: 1 } // #1A1A1A
+      }
+    });
+    
+    const composites = [];
+    let regions = [];
+    
+    if (numImages === 2) {
+      const w = Math.floor((canvasWidth - gap) / 2);
+      regions = [
+        { left: 0, top: 0, width: w, height: 600 },
+        { left: w + gap, top: 0, width: w, height: 600 }
+      ];
+    } else if (numImages === 3) {
+      const w1 = Math.floor((canvasWidth - gap) / 2);
+      const w2 = canvasWidth - gap - w1;
+      const h = Math.floor((canvasHeight - gap) / 2);
+      regions = [
+        { left: 0, top: 0, width: w1, height: 600 },
+        { left: w1 + gap, top: 0, width: w2, height: h },
+        { left: w1 + gap, top: h + gap, width: w2, height: h }
+      ];
+    } else if (numImages === 4) {
+      const w = Math.floor((canvasWidth - gap) / 2);
+      const h = Math.floor((canvasHeight - gap) / 2);
+      regions = [
+        { left: 0, top: 0, width: w, height: h },
+        { left: w + gap, top: 0, width: w, height: h },
+        { left: 0, top: h + gap, width: w, height: h },
+        { left: w + gap, top: h + gap, width: w, height: h }
+      ];
+    } else if (numImages === 5) {
+      const w1 = Math.floor((canvasWidth - gap) / 2);
+      const w2 = Math.floor((w1 - gap) / 2);
+      const h = Math.floor((canvasHeight - gap) / 2);
+      regions = [
+        { left: 0, top: 0, width: w1, height: 600 },
+        { left: w1 + gap, top: 0, width: w2, height: h },
+        { left: w1 + gap + w2 + gap, top: 0, width: w2, height: h },
+        { left: w1 + gap, top: h + gap, width: w2, height: h },
+        { left: w1 + gap + w2 + gap, top: h + gap, width: w2, height: h }
+      ];
+    } else if (numImages === 6) {
+      const w = Math.floor((canvasWidth - 2 * gap) / 3);
+      const h = Math.floor((canvasHeight - gap) / 2);
+      regions = [
+        { left: 0, top: 0, width: w, height: h },
+        { left: w + gap, top: 0, width: w, height: h },
+        { left: 2 * (w + gap), top: 0, width: w, height: h },
+        { left: 0, top: h + gap, width: w, height: h },
+        { left: w + gap, top: h + gap, width: w, height: h },
+        { left: 2 * (w + gap), top: h + gap, width: w, height: h }
+      ];
+    } else { // 7 images
+      const w1 = Math.floor((canvasWidth - gap) / 2);
+      const w2 = Math.floor((w1 - 2 * gap) / 3);
+      const h = Math.floor((canvasHeight - gap) / 2);
+      regions = [
+        { left: 0, top: 0, width: w1, height: 600 },
+        { left: w1 + gap, top: 0, width: w2, height: h },
+        { left: w1 + gap + w2 + gap, top: 0, width: w2, height: h },
+        { left: w1 + gap + 2 * (w2 + gap), top: 0, width: w2, height: h },
+        { left: w1 + gap, top: h + gap, width: w2, height: h },
+        { left: w1 + gap + w2 + gap, top: h + gap, width: w2, height: h },
+        { left: w1 + gap + 2 * (w2 + gap), top: h + gap, width: w2, height: h }
+      ];
+    }
+    
+    for (let i = 0; i < numImages; i++) {
+      const reg = regions[i];
+      const imgBuffer = await sharp(paths[i])
+        .resize(reg.width, reg.height, { fit: 'cover' })
+        .toBuffer();
+        
+      composites.push({
+        input: imgBuffer,
+        left: reg.left,
+        top: reg.top
+      });
+    }
+    
+    await base.composite(composites).webp({ quality: 80 }).toFile(destPath);
+    console.log(`[Collage Generator] Kolaj oluşturuldu (${numImages} resim): ${destPath}`);
+    return '/uploads/' + filename;
+  } catch (error) {
+    console.error('Collage creation failed:', error.message);
+    return imagePaths[0]; // Fallback to first image path if collage fails
+  }
+}
+
+// AI newsletter processing endpoint (compiles multiple URLs or raw texts)
+router.post('/ai/process-newsletter', async (req, res) => {
+  const { items, urls } = req.body;
+
+  // Map legacy urls payload to hybrid items structure if needed
+  let activeItems = [];
+  if (items && Array.isArray(items)) {
+    activeItems = items;
+  } else if (urls && Array.isArray(urls)) {
+    activeItems = urls.map(u => ({ type: 'url', value: u }));
+  }
+
+  const validItems = activeItems.filter(item => item && item.value && item.value.trim().length > 0);
+  if (validItems.length === 0) {
+    return res.status(400).json({ success: false, message: 'En az bir haber linki veya yazısı girilmelidir.' });
+  }
+
+  console.log(`[Newsletter Compiler] ${validItems.length} adet bülten girdisi işleniyor...`);
+
+  try {
+    const processedStories = [];
+    const scrapedImages = []; // will store resolved image data for placeholders
+    const collageImagePaths = []; // paths to compose into main cover image
+
+    let linkCounter = 0;
+    
+    for (let i = 0; i < validItems.length; i++) {
+      const item = validItems[i];
+      if (item.type === 'url') {
+        const url = item.value.trim();
+        linkCounter++;
+        try {
+          console.log(`[Newsletter Compiler] Kazınıyor (Link #${linkCounter}): ${url}`);
+          const scraped = await scrapeUrl(url);
+          if (scraped && scraped.text && scraped.text.length > 50) {
+            let localImageUrl = null;
+            if (scraped.cover_image) {
+              console.log(`[Newsletter Compiler] Kaynak görsel yerelleştiriliyor: ${scraped.cover_image}`);
+              localImageUrl = await downloadAndSaveAsWebP(scraped.cover_image);
+            }
+            
+            const sourceName = getDomainSourceName(url);
+
+            processedStories.push({
+              type: 'url',
+              title: scraped.title,
+              text: scraped.text,
+              cover_image: localImageUrl,
+              source: sourceName,
+              url
+            });
+
+            if (localImageUrl) {
+              // Save resolved path for HTML placeholder replacement (1-indexed for placeholder data-id)
+              scrapedImages.push({ slotId: processedStories.length, url: localImageUrl });
+              collageImagePaths.push(localImageUrl);
+            }
           }
-          
-          const sourceName = getDomainSourceName(url);
-
-          scrapedArticles.push({
-            url,
-            title: scraped.title,
-            text: scraped.text,
-            cover_image: localImageUrl,
-            source: sourceName
-          });
-
-          if (localImageUrl) {
-            scrapedImages.push({ slotId: i + 1, url: localImageUrl });
-          }
+        } catch (err) {
+          console.warn(`[Newsletter Compiler] Link kazınamadı: ${url}. Hata: ${err.message}`);
         }
-      } catch (err) {
-        console.warn(`[Newsletter Compiler] Link kazınamadı, atlanıyor: ${url}. Hata: ${err.message}`);
+      } else {
+        // Düz metin / Yazı girdisi
+        const text = item.value.trim();
+        console.log(`[Newsletter Compiler] Metin girdisi işleniyor, uzunluk: ${text.length}`);
+        
+        processedStories.push({
+          type: 'text',
+          title: `Haber Konusu #${processedStories.length + 1}`,
+          text: text,
+          cover_image: null,
+          source: 'Editör Özel'
+        });
       }
     }
 
-    if (scrapedArticles.length === 0) {
-      throw new Error('Girilen linklerin hiçbirinden geçerli haber içeriği çekilemedi.');
+    if (processedStories.length === 0) {
+      throw new Error('İçeriklerin hiçbirinden geçerli haber verisi elde edilemedi.');
     }
 
     // 2. Compile text for Groq
-    const combinedText = scrapedArticles.map((art, idx) => {
-      return `Haber #${idx + 1}:\nBaşlık: ${art.title}\nKaynak: ${art.source} (${art.url})\nİçerik:\n${art.text}`;
+    const combinedText = processedStories.map((story, idx) => {
+      if (story.type === 'url') {
+        return `Haber #${idx + 1} (Link):\nBaşlık: ${story.title}\nKaynak: ${story.source} (${story.url})\nİçerik:\n${story.text}`;
+      } else {
+        return `Haber #${idx + 1} (Yazı / Paragraf):\nİçerik:\n${story.text}`;
+      }
     }).join('\n\n---\n\n');
 
     console.log('[Newsletter Compiler] Groq AI ile bülten derleniyor...');
     const result = await processNewsletterContent(combinedText);
 
-    // 3. Pre-fill newsletter cover image with the first scraped article's image if available
-    result.cover_image = scrapedArticles[0]?.cover_image || null;
+    // 3. Generate collage cover image from collected images (up to 7)
+    console.log(`[Newsletter Compiler] ${collageImagePaths.length} adet görsel ile kapak kolajı oluşturuluyor...`);
+    const collageUrl = await createCollage(collageImagePaths);
+    result.cover_image = collageUrl;
 
     // Prepare placeholders for editor
     if (result.content) {

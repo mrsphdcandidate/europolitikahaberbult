@@ -53,35 +53,42 @@
       
       <div class="card">
         <div class="card-header">
-          <h2>Bülten İçerik Linkleri</h2>
+          <h2>Bülten İçerik Kaynakları</h2>
         </div>
         <div class="card-body">
           <p style="color: #718096; font-size: 14px; margin-bottom: 24px; line-height: 1.5;">
-            Yatırımcılarınıza ve okuyucularınıza göndermek istediğiniz haber linklerini (makale, kur haberleri, vb.) ekleyin. AI bu haberleri tek bir bülten (digest) şeklinde birleştirecek, görsellerini kaynak sitelerden yerelleştirip indirdikten sonra düzenlemeniz için editöre aktaracaktır.
+            Bültene eklemek istediğiniz haber linklerini veya kendi yazdığınız düz metinleri/paragrafları girin. AI bu içeriklerin tamamını tek bir bülten (digest) şeklinde birleştirecek, linklerdeki görselleri kazıyıp kalıcı bir kapak kolajı ürettikten sonra düzenlemeniz için editöre aktaracaktır.
           </p>
 
           <form id="newsletterForm" style="display: flex; flex-direction: column; gap: 16px;">
-            <div id="linksContainer" style="display: flex; flex-direction: column; gap: 12px;">
+            <div id="itemsContainer" style="display: flex; flex-direction: column; gap: 16px;">
               
-              <!-- Link Input Slot 1 -->
-              <div class="link-input-row" style="display: flex; gap: 8px; align-items: center;">
-                <span style="font-weight: 600; color: #718096; font-size: 13px; width: 60px;">Link #1:</span>
-                <input type="url" name="urls[]" placeholder="https://example.com/haber-linki" required style="flex: 1; padding: 10px 14px; border: 1px solid #CBD5E0; border-radius: 6px; font-family: inherit; font-size: 14px; outline: none;">
-                <button type="button" class="btn btn-secondary btn-remove-link" disabled style="padding: 10px 16px; background-color: #E2E8F0; color: #718096; border-color: #E2E8F0; cursor: not-allowed; border-radius: 6px;">✕</button>
+              <!-- Item Slot 1 (Link by default) -->
+              <div class="item-row" data-type="url" style="display: flex; gap: 8px; align-items: flex-start; background: #F8F9FA; padding: 12px; border-radius: 8px; border: 1px solid #E2E8F0;">
+                <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                  <span class="item-label" style="font-weight: 700; color: #4A5568; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Haber #1 (Link)</span>
+                  <input type="url" placeholder="https://example.com/haber-linki" required style="width: 100%; padding: 10px 14px; border: 1px solid #CBD5E0; border-radius: 6px; font-family: inherit; font-size: 14px; outline: none;">
+                </div>
+                <button type="button" class="btn btn-secondary btn-remove-item" disabled style="padding: 10px 16px; margin-top: 18px; background-color: #E2E8F0; color: #718096; border-color: #E2E8F0; cursor: not-allowed; border-radius: 6px;">✕</button>
               </div>
 
-              <!-- Link Input Slot 2 -->
-              <div class="link-input-row" style="display: flex; gap: 8px; align-items: center;">
-                <span style="font-weight: 600; color: #718096; font-size: 13px; width: 60px;">Link #2:</span>
-                <input type="url" name="urls[]" placeholder="https://example.com/haber-linki" style="flex: 1; padding: 10px 14px; border: 1px solid #CBD5E0; border-radius: 6px; font-family: inherit; font-size: 14px; outline: none;">
-                <button type="button" class="btn btn-secondary btn-remove-link" style="padding: 10px 16px; border-radius: 6px;">✕</button>
+              <!-- Item Slot 2 (Text by default) -->
+              <div class="item-row" data-type="text" style="display: flex; gap: 8px; align-items: flex-start; background: #F8F9FA; padding: 12px; border-radius: 8px; border: 1px solid #E2E8F0;">
+                <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                  <span class="item-label" style="font-weight: 700; color: #4A5568; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Haber #2 (Yazı)</span>
+                  <textarea placeholder="Kendi yazdığınız haberi veya özeti buraya girin..." rows="3" style="width: 100%; padding: 10px 14px; border: 1px solid #CBD5E0; border-radius: 6px; font-family: inherit; font-size: 14px; outline: none; resize: vertical;"></textarea>
+                </div>
+                <button type="button" class="btn btn-secondary btn-remove-item" style="padding: 10px 16px; margin-top: 18px; border-radius: 6px;">✕</button>
               </div>
 
             </div>
 
             <div style="display: flex; gap: 12px; margin-top: 12px;">
-              <button type="button" id="btnAddLink" class="btn btn-secondary" style="padding: 10px 20px; font-size: 13px; border-radius: 6px;">
-                ➕ Yeni Link Ekle
+              <button type="button" id="btnAddLink" class="btn btn-secondary" style="padding: 10px 20px; font-size: 13px; border-radius: 6px; background-color: #EDF2F7; border-color: #CBD5E0; color: #4A5568;">
+                ➕ Link Ekle
+              </button>
+              <button type="button" id="btnAddText" class="btn btn-secondary" style="padding: 10px 20px; font-size: 13px; border-radius: 6px; background-color: #EDF2F7; border-color: #CBD5E0; color: #4A5568;">
+                📝 Yazı Ekle
               </button>
               <button type="submit" id="btnSubmitNewsletter" class="btn btn-primary" style="flex: 1; padding: 12px 24px; font-weight: 600; border-radius: 6px;">
                 🤖 AI ile Bülten Derle
@@ -95,7 +102,7 @@
       <div id="newsletterLoading" class="card" style="display: none; text-align: center; padding: 40px 20px;">
         <div style="font-size: 40px; margin-bottom: 16px; animation: spin 2s linear infinite; display: inline-block;">⚙️</div>
         <h3 style="font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; margin-bottom: 8px; color: #1A1A1A;">Bülteniniz Derleniyor...</h3>
-        <p style="color: #718096; font-size: 13px; max-width: 400px; margin: 0 auto 20px auto; line-height: 1.5;">Haber linkleri kazınıyor, görseller sunucuya indiriliyor ve AI tüm verileri analiz ederek birleştiriyor. Bu işlem 15-30 saniye sürebilir, lütfen bekleyin.</p>
+        <p style="color: #718096; font-size: 13px; max-width: 400px; margin: 0 auto 20px auto; line-height: 1.5;">Haber kaynakları okunuyor, resimler kalıcı depolamaya indiriliyor ve kapak kolajı oluşturuluyor. Lütfen bekleyin.</p>
         <div style="width: 100%; height: 6px; background-color: #E2E8F0; border-radius: 3px; overflow: hidden; position: relative;">
           <div style="position: absolute; height: 100%; background-color: #C53030; width: 30%; border-radius: 3px; animation: loadingBar 2s ease-in-out infinite;"></div>
         </div>
@@ -118,62 +125,121 @@
   <script src="/js/admin.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const container = document.getElementById('linksContainer');
+      const container = document.getElementById('itemsContainer');
       const btnAddLink = document.getElementById('btnAddLink');
+      const btnAddText = document.getElementById('btnAddText');
       const form = document.getElementById('newsletterForm');
       const loading = document.getElementById('newsletterLoading');
       const cardForm = form.closest('.card');
 
       // Update slot numbers & delete buttons state
-      const updateLinkSlots = () => {
-        const rows = container.querySelectorAll('.link-input-row');
+      const updateSlots = () => {
+        const rows = container.querySelectorAll('.item-row');
         rows.forEach((row, idx) => {
-          row.querySelector('span').textContent = `Link #${idx + 1}:`;
-          const removeBtn = row.querySelector('.btn-remove-link');
+          const type = row.getAttribute('data-type');
+          const typeLabel = type === 'url' ? 'Link' : 'Yazı';
+          row.querySelector('.item-label').textContent = `Haber #${idx + 1} (${typeLabel})`;
+          
+          const removeBtn = row.querySelector('.btn-remove-item');
           if (rows.length === 1) {
             removeBtn.disabled = true;
             removeBtn.style.cursor = 'not-allowed';
+            removeBtn.style.backgroundColor = '#E2E8F0';
+            removeBtn.style.color = '#718096';
+            removeBtn.style.borderColor = '#E2E8F0';
           } else {
             removeBtn.disabled = false;
             removeBtn.style.cursor = 'pointer';
+            removeBtn.style.backgroundColor = '';
+            removeBtn.style.color = '';
+            removeBtn.style.borderColor = '';
           }
         });
       };
 
-      // Add dynamic link input
-      btnAddLink.addEventListener('click', () => {
-        const rowsCount = container.querySelectorAll('.link-input-row').length;
-        if (rowsCount >= 6) {
-          alert('Tek seferde en fazla 6 adet haber linki derleyebilirsiniz.');
+      // Add dynamic link input row
+      const addLinkRow = () => {
+        const rowsCount = container.querySelectorAll('.item-row').length;
+        if (rowsCount >= 10) {
+          alert('Tek seferde en fazla 10 adet haber ekleyebilirsiniz.');
           return;
         }
 
         const newRow = document.createElement('div');
-        newRow.className = 'link-input-row';
+        newRow.className = 'item-row';
+        newRow.setAttribute('data-type', 'url');
         newRow.style.display = 'flex';
         newRow.style.gap = '8px';
-        newRow.style.alignItems = 'center';
+        newRow.style.alignItems = 'flex-start';
+        newRow.style.background = '#F8F9FA';
+        newRow.style.padding = '12px';
+        newRow.style.borderRadius = '8px';
+        newRow.style.border = '1px solid #E2E8F0';
+
         newRow.innerHTML = `
-          <span style="font-weight: 600; color: #718096; font-size: 13px; width: 60px;">Link #${rowsCount + 1}:</span>
-          <input type="url" name="urls[]" placeholder="https://example.com/haber-linki" style="flex: 1; padding: 10px 14px; border: 1px solid #CBD5E0; border-radius: 6px; font-family: inherit; font-size: 14px; outline: none;">
-          <button type="button" class="btn btn-secondary btn-remove-link" style="padding: 10px 16px; border-radius: 6px;">✕</button>
+          <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+            <span class="item-label" style="font-weight: 700; color: #4A5568; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Haber (Link)</span>
+            <input type="url" placeholder="https://example.com/haber-linki" required style="width: 100%; padding: 10px 14px; border: 1px solid #CBD5E0; border-radius: 6px; font-family: inherit; font-size: 14px; outline: none;">
+          </div>
+          <button type="button" class="btn btn-secondary btn-remove-item" style="padding: 10px 16px; margin-top: 18px; border-radius: 6px;">✕</button>
         `;
         container.appendChild(newRow);
         
         // Bind delete
-        newRow.querySelector('.btn-remove-link').addEventListener('click', () => {
+        newRow.querySelector('.btn-remove-item').addEventListener('click', () => {
           newRow.remove();
-          updateLinkSlots();
+          updateSlots();
         });
 
-        updateLinkSlots();
-      });
+        updateSlots();
+      };
 
-      // Bind initial delete button
-      container.querySelectorAll('.btn-remove-link').forEach(btn => {
+      // Add dynamic text input row
+      const addTextRow = () => {
+        const rowsCount = container.querySelectorAll('.item-row').length;
+        if (rowsCount >= 10) {
+          alert('Tek seferde en fazla 10 adet haber ekleyebilirsiniz.');
+          return;
+        }
+
+        const newRow = document.createElement('div');
+        newRow.className = 'item-row';
+        newRow.setAttribute('data-type', 'text');
+        newRow.style.display = 'flex';
+        newRow.style.gap = '8px';
+        newRow.style.alignItems = 'flex-start';
+        newRow.style.background = '#F8F9FA';
+        newRow.style.padding = '12px';
+        newRow.style.borderRadius = '8px';
+        newRow.style.border = '1px solid #E2E8F0';
+
+        newRow.innerHTML = `
+          <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+            <span class="item-label" style="font-weight: 700; color: #4A5568; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Haber (Yazı)</span>
+            <textarea placeholder="Kendi yazdığınız haberi veya özeti buraya girin..." rows="3" required style="width: 100%; padding: 10px 14px; border: 1px solid #CBD5E0; border-radius: 6px; font-family: inherit; font-size: 14px; outline: none; resize: vertical;"></textarea>
+          </div>
+          <button type="button" class="btn btn-secondary btn-remove-item" style="padding: 10px 16px; margin-top: 18px; border-radius: 6px;">✕</button>
+        `;
+        container.appendChild(newRow);
+        
+        // Bind delete
+        newRow.querySelector('.btn-remove-item').addEventListener('click', () => {
+          newRow.remove();
+          updateSlots();
+        });
+
+        updateSlots();
+      };
+
+      // Bind button events
+      btnAddLink.addEventListener('click', addLinkRow);
+      btnAddText.addEventListener('click', addTextRow);
+
+      // Bind initial delete buttons
+      container.querySelectorAll('.btn-remove-item').forEach(btn => {
         btn.addEventListener('click', (e) => {
-          e.target.closest('.link-input-row').remove();
-          updateLinkSlots();
+          e.target.closest('.item-row').remove();
+          updateSlots();
         });
       });
 
@@ -181,11 +247,18 @@
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        const inputs = Array.from(form.querySelectorAll('input[name="urls[]"]'));
-        const urls = inputs.map(i => i.value.trim()).filter(Boolean);
+        const rows = Array.from(container.querySelectorAll('.item-row'));
+        const items = rows.map(row => {
+          const type = row.getAttribute('data-type');
+          const valueInput = type === 'url' ? row.querySelector('input') : row.querySelector('textarea');
+          return {
+            type,
+            value: valueInput.value.trim()
+          };
+        }).filter(item => item.value.length > 0);
 
-        if (urls.length === 0) {
-          alert('Lütfen en az bir haber linki girin.');
+        if (items.length === 0) {
+          alert('Lütfen en az bir haber linki veya yazısı girin.');
           return;
         }
 
@@ -197,7 +270,7 @@
           const response = await fetch('/api/ai/process-newsletter', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ urls })
+            body: JSON.stringify({ items })
           });
 
           const res = await response.json();
