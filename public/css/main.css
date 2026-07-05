@@ -478,10 +478,11 @@ img {
 }
 
 .article-content p {
-  margin-bottom: 24px;
+  margin-bottom: 12px;
   font-size: 17px;
   line-height: 1.8;
   color: #333;
+  text-align: justify;
 }
 
 .article-content h2 {
@@ -1279,8 +1280,9 @@ img {
 .article-content p {
   font-size: 19px;
   line-height: 1.85;
-  margin-bottom: 24px;
+  margin-bottom: 12px;
   color: #2D3748;
+  text-align: justify;
 }
 .article-content h2 {
   font-size: 28px;
