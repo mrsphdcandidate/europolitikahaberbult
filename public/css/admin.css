@@ -1277,7 +1277,6 @@ tbody tr:last-child td {
   max-height: 100%;
   object-fit: contain;
   display: block;
-  filter: brightness(0) invert(1);
 }
 
 .login-logo-img {
@@ -1287,5 +1286,4 @@ tbody tr:last-child td {
   object-fit: contain;
   display: block;
   margin: 0 auto;
-  filter: brightness(0) invert(1);
 }

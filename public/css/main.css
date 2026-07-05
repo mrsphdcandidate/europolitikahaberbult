@@ -1425,19 +1425,29 @@ img {
   border-color: #2D3748 !important;
 }
 
-/* Logo Styling for Image */
+/* Logo Styling for SVG Images */
 .site-logo-img {
   height: 40px;
   width: auto;
   max-height: 100%;
   object-fit: contain;
   display: block;
-  transition: filter 0.2s ease;
 }
 
-/* dark mode overrides - make logo white for high contrast */
-[data-theme="dark"] .site-logo-img {
-  filter: brightness(0) invert(1);
+.site-logo .logo-dark {
+  display: none !important;
+}
+
+.site-logo .logo-light {
+  display: block !important;
+}
+
+[data-theme="dark"] .site-logo .logo-dark {
+  display: block !important;
+}
+
+[data-theme="dark"] .site-logo .logo-light {
+  display: none !important;
 }
 
 .footer-logo-img {
@@ -1446,5 +1456,4 @@ img {
   max-height: 100%;
   object-fit: contain;
   display: block;
-  filter: brightness(0) invert(1);
 }
