@@ -528,18 +528,19 @@
 <div id="shareCardTemplateFull" style="position: absolute; left: -9999px; top: -9999px; width: 600px; background-color: #F8F7F4; padding: 45px; box-sizing: border-box; border: 4px solid #C53030; border-radius: 12px; font-family: 'Inter', sans-serif;">
   <style>
     #shareCardTemplateFull .card-full-content-block p {
-      margin-top: 14px !important;
-      margin-bottom: 14px !important;
-      line-height: 1.65 !important;
+      margin-top: 0 !important;
+      margin-bottom: 12px !important;
+      line-height: 1.8 !important;
       display: block !important;
+      text-align: justify !important;
     }
     #shareCardTemplateFull .card-full-content-block h2,
     #shareCardTemplateFull .card-full-content-block h3 {
-      margin-top: 28px !important;
-      margin-bottom: 14px !important;
+      margin-top: 24px !important;
+      margin-bottom: 12px !important;
       font-family: 'Playfair Display', serif !important;
       font-weight: 700 !important;
-      line-height: 1.35 !important;
+      line-height: 1.25 !important;
       display: block !important;
     }
     #shareCardTemplateFull .card-full-content-block img {
@@ -547,9 +548,16 @@
       max-width: 100% !important;
       height: auto !important;
       margin: 20px 0 !important;
-      padding-top: 20px !important; /* Force padding to prevent text overlap in html2canvas */
+      padding-top: 20px !important;
       padding-bottom: 20px !important;
       box-sizing: border-box !important;
+    }
+    #shareCardTemplateFull .card-full-content-block img.image-placeholder {
+      display: none !important;
+    }
+    #shareCardTemplateFull .card-full-content-block p:empty,
+    #shareCardTemplateFull .card-full-content-block p:has(> br:only-child) {
+      display: none !important;
     }
   </style>
 
@@ -587,7 +595,7 @@
   <% } %>
   
   <!-- Render the entire HTML content with original style inside card -->
-  <div class="card-full-content-block" style="font-size: 15px; line-height: 1.7; color: #1A1A1A; text-align: left; font-family: 'Inter', sans-serif;">
+  <div class="card-full-content-block" style="font-size: 15px; line-height: 1.8; color: #1A1A1A; text-align: justify; font-family: 'Inter', sans-serif;">
     <%- article.content %>
   </div>
 
