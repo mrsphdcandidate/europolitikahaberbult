@@ -57,6 +57,56 @@
   }
 
   var relatedArticles = typeof recentArticles !== 'undefined' ? recentArticles : [];
+
+  function getLogoLight(height) {
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 70.21" fill-rule="evenodd" clip-rule="evenodd" style="height: ${height}px; width: auto; display: inline-block; vertical-align: middle;">
+  <g fill="#FFCC00">
+    <polygon points="27.13,3.00 27.84,5.04 30.00,5.09 28.28,6.39 28.90,8.46 27.13,7.23 25.35,8.46 25.98,6.39 24.25,5.09 26.42,5.04" />
+    <polygon points="37.68,5.83 38.39,7.87 40.55,7.92 38.83,9.22 39.46,11.29 37.68,10.06 35.91,11.29 36.53,9.22 34.81,7.92 36.97,7.87" />
+    <polygon points="45.41,13.55 46.12,15.60 48.28,15.64 46.56,16.95 47.18,19.02 45.41,17.78 43.63,19.02 44.26,16.95 42.53,15.64 44.70,15.60" />
+    <polygon points="48.23,24.11 48.94,26.15 51.11,26.19 49.38,27.50 50.01,29.57 48.23,28.34 46.46,29.57 47.09,27.50 45.36,26.19 47.52,26.15" />
+    <polygon points="45.41,34.66 46.12,36.70 48.28,36.75 46.56,38.05 47.18,40.12 45.41,38.89 43.63,40.12 44.26,38.05 42.53,36.75 44.70,36.70" />
+    <polygon points="37.68,42.39 38.39,44.43 40.55,44.47 38.83,45.78 39.46,47.85 37.68,46.62 35.91,47.85 36.53,45.78 34.81,44.47 36.97,44.43" />
+    <polygon points="27.13,45.21 27.84,47.26 30.00,47.30 28.28,48.61 28.90,50.68 27.13,49.44 25.35,50.68 25.98,48.61 24.25,47.30 26.42,47.26" />
+    <polygon points="16.57,42.39 17.28,44.43 19.45,44.47 17.72,45.78 18.35,47.85 16.57,46.62 14.80,47.85 15.43,45.78 13.70,44.47 15.86,44.43" />
+    <polygon points="8.85,34.66 9.56,36.70 11.72,36.75 10.00,38.05 10.62,40.12 8.85,38.89 7.07,40.12 7.70,38.05 5.98,36.75 8.14,36.70" />
+    <polygon points="6.02,24.11 6.73,26.15 8.89,26.19 7.17,27.50 7.80,29.57 6.02,28.34 4.25,29.57 4.87,27.50 3.15,26.19 5.31,26.15" />
+    <polygon points="8.85,13.55 9.56,15.60 11.72,15.64 10.00,16.95 10.62,19.02 8.85,17.78 7.07,19.02 7.70,16.95 5.98,15.64 8.14,15.60" />
+    <polygon points="16.57,5.83 17.28,7.87 19.45,7.92 17.72,9.22 18.35,11.29 16.57,10.06 14.80,11.29 15.43,9.22 13.70,7.92 15.86,7.87" />
+  </g>
+  <g fill="#185896" transform="translate(40.64, 32.21)">
+    <path d="M 6.62 2.06 L 6.12 3.44 L 7.75 5.38 L 6.81 7.56 L 3.88 8.00 L 2.56 6.38 L 1.94 7.06 L 2.06 35.31 L 2.81 35.94 L 22.31 35.88 L 22.94 35.12 L 22.88 30.56 L 20.44 30.88 L 19.69 29.25 L 18.38 28.06 L 15.75 29.00 L 14.12 28.00 L 10.81 28.00 L 5.75 31.00 L 4.12 29.62 L 3.94 27.81 L 5.38 26.19 L 6.81 26.94 L 8.56 26.75 L 8.94 23.81 L 9.62 23.00 L 11.38 22.88 L 14.81 20.94 L 20.75 20.56 L 21.88 18.38 L 21.94 16.81 L 20.62 15.19 L 19.12 15.44 L 18.81 17.62 L 17.31 18.69 L 16.56 17.19 L 15.12 16.56 L 14.56 15.19 L 12.56 14.94 L 11.12 13.62 L 10.94 10.81 L 11.81 9.94 L 20.12 9.94 L 22.56 8.75 L 22.88 2.62 L 22.12 2.00 Z" />
+    <path d="M 4.31 2.06 L 4.12 2.06 L 4.06 2.00 L 2.81 2.00 L 2.75 2.06 L 2.62 2.06 L 2.56 2.12 L 2.50 2.12 L 2.44 2.19 L 2.38 2.19 L 2.19 2.38 L 2.19 2.44 L 2.06 2.62 L 2.06 2.75 L 2.00 2.81 L 2.00 4.06 L 2.06 4.12 L 2.06 4.31 L 2.31 4.69 L 2.38 4.69 L 2.50 4.81 L 2.62 4.81 L 2.69 4.88 L 2.94 4.88 L 3.00 4.94 L 3.06 4.88 L 3.31 4.88 L 3.38 4.81 L 3.50 4.81 L 3.56 4.75 L 3.62 4.75 L 4.62 3.75 L 4.62 3.69 L 4.75 3.56 L 4.75 3.50 L 4.81 3.44 L 4.81 3.31 L 4.88 3.25 L 4.88 2.69 L 4.81 2.62 L 4.81 2.56 L 4.75 2.50 L 4.75 2.44 L 4.44 2.12 L 4.38 2.12 Z" />
+  </g>
+  <text x="64.14" y="67.21" font-family="'Inter', Arial, sans-serif" font-size="33.0" font-weight="900" fill="#185896" letter-spacing="-0.5">URO</text>
+  <text x="143" y="67.21" font-family="'Inter', Arial, sans-serif" font-size="33.0" font-weight="400" fill="#185896" letter-spacing="-0.3">Politika</text>
+</svg>`;
+  }
+
+  function getLogoDark(height) {
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 70.21" fill-rule="evenodd" clip-rule="evenodd" style="height: ${height}px; width: auto; display: inline-block; vertical-align: middle;">
+  <g fill="#FFCC00">
+    <polygon points="27.13,3.00 27.84,5.04 30.00,5.09 28.28,6.39 28.90,8.46 27.13,7.23 25.35,8.46 25.98,6.39 24.25,5.09 26.42,5.04" />
+    <polygon points="37.68,5.83 38.39,7.87 40.55,7.92 38.83,9.22 39.46,11.29 37.68,10.06 35.91,11.29 36.53,9.22 34.81,7.92 36.97,7.87" />
+    <polygon points="45.41,13.55 46.12,15.60 48.28,15.64 46.56,16.95 47.18,19.02 45.41,17.78 43.63,19.02 44.26,16.95 42.53,15.64 44.70,15.60" />
+    <polygon points="48.23,24.11 48.94,26.15 51.11,26.19 49.38,27.50 50.01,29.57 48.23,28.34 46.46,29.57 47.09,27.50 45.36,26.19 47.52,26.15" />
+    <polygon points="45.41,34.66 46.12,36.70 48.28,36.75 46.56,38.05 47.18,40.12 45.41,38.89 43.63,40.12 44.26,38.05 42.53,36.75 44.70,36.70" />
+    <polygon points="37.68,42.39 38.39,44.43 40.55,44.47 38.83,45.78 39.46,47.85 37.68,46.62 35.91,47.85 36.53,45.78 34.81,44.47 36.97,44.43" />
+    <polygon points="27.13,45.21 27.84,47.26 30.00,47.30 28.28,48.61 28.90,50.68 27.13,49.44 25.35,50.68 25.98,48.61 24.25,47.30 26.42,47.26" />
+    <polygon points="16.57,42.39 17.28,44.43 19.45,44.47 17.72,45.78 18.35,47.85 16.57,46.62 14.80,47.85 15.43,45.78 13.70,44.47 15.86,44.43" />
+    <polygon points="8.85,34.66 9.56,36.70 11.72,36.75 10.00,38.05 10.62,40.12 8.85,38.89 7.07,40.12 7.70,38.05 5.98,36.75 8.14,36.70" />
+    <polygon points="6.02,24.11 6.73,26.15 8.89,26.19 7.17,27.50 7.80,29.57 6.02,28.34 4.25,29.57 4.87,27.50 3.15,26.19 5.31,26.15" />
+    <polygon points="8.85,13.55 9.56,15.60 11.72,15.64 10.00,16.95 10.62,19.02 8.85,17.78 7.07,19.02 7.70,16.95 5.98,15.64 8.14,15.60" />
+    <polygon points="16.57,5.83 17.28,7.87 19.45,7.92 17.72,9.22 18.35,11.29 16.57,10.06 14.80,11.29 15.43,9.22 13.70,7.92 15.86,7.87" />
+  </g>
+  <g fill="#FFFFFF" transform="translate(40.64, 32.21)">
+    <path d="M 6.62 2.06 L 6.12 3.44 L 7.75 5.38 L 6.81 7.56 L 3.88 8.00 L 2.56 6.38 L 1.94 7.06 L 2.06 35.31 L 2.81 35.94 L 22.31 35.88 L 22.94 35.12 L 22.88 30.56 L 20.44 30.88 L 19.69 29.25 L 18.38 28.06 L 15.75 29.00 L 14.12 28.00 L 10.81 28.00 L 5.75 31.00 L 4.12 29.62 L 3.94 27.81 L 5.38 26.19 L 6.81 26.94 L 8.56 26.75 L 8.94 23.81 L 9.62 23.00 L 11.38 22.88 L 14.81 20.94 L 20.75 20.56 L 21.88 18.38 L 21.94 16.81 L 20.62 15.19 L 19.12 15.44 L 18.81 17.62 L 17.31 18.69 L 16.56 17.19 L 15.12 16.56 L 14.56 15.19 L 12.56 14.94 L 11.12 13.62 L 10.94 10.81 L 11.81 9.94 L 20.12 9.94 L 22.56 8.75 L 22.88 2.62 L 22.12 2.00 Z" />
+    <path d="M 4.31 2.06 L 4.12 2.06 L 4.06 2.00 L 2.81 2.00 L 2.75 2.06 L 2.62 2.06 L 2.56 2.12 L 2.50 2.12 L 2.44 2.19 L 2.38 2.19 L 2.19 2.38 L 2.19 2.44 L 2.06 2.62 L 2.06 2.75 L 2.00 2.81 L 2.00 4.06 L 2.06 4.12 L 2.06 4.31 L 2.31 4.69 L 2.38 4.69 L 2.50 4.81 L 2.62 4.81 L 2.69 4.88 L 2.94 4.88 L 3.00 4.94 L 3.06 4.88 L 3.31 4.88 L 3.38 4.81 L 3.50 4.81 L 3.56 4.75 L 3.62 4.75 L 4.62 3.75 L 4.62 3.69 L 4.75 3.56 L 4.75 3.50 L 4.81 3.44 L 4.81 3.31 L 4.88 3.25 L 4.88 2.69 L 4.81 2.62 L 4.81 2.56 L 4.75 2.50 L 4.75 2.44 L 4.44 2.12 L 4.38 2.12 Z" />
+  </g>
+  <text x="64.14" y="67.21" font-family="'Inter', Arial, sans-serif" font-size="33.0" font-weight="900" fill="#FFFFFF" letter-spacing="-0.5">URO</text>
+  <text x="143" y="67.21" font-family="'Inter', Arial, sans-serif" font-size="33.0" font-weight="400" fill="#FFFFFF" letter-spacing="-0.3">Politika</text>
+</svg>`;
+  }
 %>
 
 <!-- Floating Share Bar for Desktop -->
@@ -353,7 +403,7 @@
 <!-- Hidden container for generating shareable image card (Classic) -->
 <div id="shareCardTemplate" style="position: absolute; left: -9999px; top: -9999px; width: 600px; background-color: #F8F7F4; padding: 40px; box-sizing: border-box; border: 4px solid #C53030; border-radius: 12px; font-family: 'Inter', sans-serif;">
   <div style="text-align: center; border-bottom: 2px solid #E8E4DE; padding-bottom: 15px; margin-bottom: 25px;">
-    <img src="/img/logo_light.svg" alt="EuroPolitika" style="height: 36px; width: auto;" crossorigin="anonymous">
+    <%- getLogoLight(36) %>
     <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 3px; color: #718096; margin-top: 4px;">Politik Ekonomi Bülteni</div>
   </div>
   
@@ -385,7 +435,7 @@
 <!-- Hidden container for generating shareable image card (Dark Minimalist) -->
 <div id="shareCardTemplateDark" style="position: absolute; left: -9999px; top: -9999px; width: 600px; background-color: #121212; padding: 40px; box-sizing: border-box; border: 4px solid #D69E2E; border-radius: 12px; font-family: 'Inter', sans-serif;">
   <div style="text-align: center; border-bottom: 2px solid #2D3748; padding-bottom: 15px; margin-bottom: 25px;">
-    <img src="/img/logo_dark.svg" alt="EuroPolitika" style="height: 36px; width: auto;" crossorigin="anonymous">
+    <%- getLogoDark(36) %>
     <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 3px; color: #A0AEC0; margin-top: 4px;">Politik Ekonomi Bülteni</div>
   </div>
   
@@ -415,7 +465,7 @@
 
 <!-- Hidden container for generating shareable image card (Quote) -->
 <div id="shareCardTemplateQuote" style="position: absolute; left: -9999px; top: -9999px; width: 600px; background-color: #F8F7F4; padding: 50px 40px; box-sizing: border-box; border: 4px solid #C53030; border-radius: 12px; font-family: 'Inter', sans-serif; text-align: center;">
-  <img src="/img/logo_light.svg" alt="EuroPolitika" style="height: 32px; width: auto; display: block; margin: 0 auto 25px auto;" crossorigin="anonymous">
+  <div style="text-align: center; margin-bottom: 25px;"><%- getLogoLight(32) %></div>
   
   <% if (hasEditorAnalysis) { %>
     <div style="display: inline-flex; align-items: center; background-color: #C53030; color: #FFFFFF; font-size: 10px; font-weight: 700; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 25px; font-family: 'Inter', sans-serif; line-height: 1;"><span style="margin-right: 4px; font-size: 11px; line-height: 1;">⭐</span> ÖZEL EDİTÖR ANALİZİ</div>
@@ -439,7 +489,7 @@
 <!-- Hidden container for generating shareable image card (Tall/Newsletter Banner) -->
 <div id="shareCardTemplateTall" style="position: absolute; left: -9999px; top: -9999px; width: 480px; background-color: #F8F7F4; padding: 40px; box-sizing: border-box; border: 4px solid #C53030; border-radius: 12px; font-family: 'Inter', sans-serif;">
   <div style="text-align: center; border-bottom: 2px solid #1A1A1A; padding-bottom: 20px; margin-bottom: 25px;">
-    <img src="/img/logo_light.svg" alt="EuroPolitika" style="height: 38px; width: auto;" crossorigin="anonymous">
+    <%- getLogoLight(38) %>
     <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 3px; color: #718096; margin-top: 6px; font-weight: 700;">Haftalık Politik Ekonomi Bülteni</div>
   </div>
   
@@ -504,7 +554,7 @@
   </style>
 
   <div style="text-align: center; border-bottom: 2px solid #1A1A1A; padding-bottom: 20px; margin-bottom: 25px;">
-    <img src="/img/logo_light.svg" alt="EuroPolitika" style="height: 40px; width: auto;" crossorigin="anonymous">
+    <%- getLogoLight(40) %>
     <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 3px; color: #718096; margin-top: 6px; font-weight: 700;">Haftalık Politik Ekonomi Bülteni</div>
   </div>
   
