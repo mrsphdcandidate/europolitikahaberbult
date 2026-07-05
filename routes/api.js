@@ -11,10 +11,22 @@ const { scrapeUrl } = require('../services/scraper');
 const sharp = require('sharp');
 const cheerio = require('cheerio');
 
+let uploadsDir = path.join(__dirname, '..', 'data', 'uploads');
+try {
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+} catch (err) {
+  uploadsDir = '/tmp/data/uploads';
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+}
+
 // Multer storage configuration
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '..', 'data', 'uploads'));
+    cb(null, uploadsDir);
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -59,7 +71,7 @@ async function downloadAndSaveAsWebP(targetUrl) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     const safeExt = path.extname(filename) || '.jpg';
     const localFilename = uniqueSuffix + safeExt;
-    const localPath = path.join(__dirname, '..', 'data', 'uploads', localFilename);
+    const localPath = path.join(uploadsDir, localFilename);
 
     console.log(`[Downloader Helper] Görsel indiriliyor: ${targetUrl} -> ${localPath}`);
 
@@ -290,7 +302,7 @@ async function createCollage(imagePaths) {
     .filter(Boolean)
     .map(p => {
       const baseName = path.basename(p);
-      return path.join(__dirname, '..', 'data', 'uploads', baseName);
+      return path.join(uploadsDir, baseName);
     })
     .filter(p => fs.existsSync(p));
 
@@ -300,7 +312,7 @@ async function createCollage(imagePaths) {
   const numImages = paths.length;
   
   const filename = `collage-${Date.now()}-${Math.round(Math.random() * 1E9)}.webp`;
-  const destPath = path.join(__dirname, '..', 'data', 'uploads', filename);
+  const destPath = path.join(uploadsDir, filename);
 
   try {
     // If only 1 image, crop it to standard 1200x600 px for nice cover fit
@@ -589,7 +601,7 @@ router.post('/upload-card', (req, res) => {
   }
 
   try {
-    const cardsDir = path.join(__dirname, '..', 'data', 'uploads', 'cards');
+    const cardsDir = path.join(uploadsDir, 'cards');
     if (!fs.existsSync(cardsDir)) {
       fs.mkdirSync(cardsDir, { recursive: true });
     }

@@ -5,10 +5,17 @@ const path = require('path');
 const fs = require('fs');
 const { db, getAllArticles, createArticle } = require('./database/db');
 
-// Ensure data/uploads directory exists (within persistent volume)
-const uploadsDir = path.join(__dirname, 'data', 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
+// Ensure data/uploads directory exists
+let uploadsDir = path.join(__dirname, 'data', 'uploads');
+try {
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+} catch (err) {
+  uploadsDir = '/tmp/data/uploads';
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
 }
 
 const app = express();
@@ -20,7 +27,7 @@ app.set('views', path.join(__dirname, 'views'));
 
 // Static files
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/uploads', express.static(path.join(__dirname, 'data', 'uploads')));
+app.use('/uploads', express.static(uploadsDir));
 app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 
 // Body parser
@@ -93,7 +100,7 @@ function seedDatabase() {
   }
 
   // Ensure default cover image exists in persistent directory
-  const defaultCoverPath = path.join(__dirname, 'data', 'uploads', 'intro-cover.jpg');
+  const defaultCoverPath = path.join(uploadsDir, 'intro-cover.jpg');
   if (!fs.existsSync(defaultCoverPath)) {
     const https = require('https');
     const file = fs.createWriteStream(defaultCoverPath);
