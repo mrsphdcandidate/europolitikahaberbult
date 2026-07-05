@@ -64,6 +64,12 @@
           </p>
 
           <form id="newsletterForm" style="display: flex; flex-direction: column; gap: 16px;">
+            <!-- Bülten Başlığı (Opsiyonel) -->
+            <div class="title-row" style="display: flex; flex-direction: column; gap: 6px; background: #FFF; padding: 12px; border-radius: 8px; border: 1px solid #E2E8F0;">
+              <span style="font-weight: 700; color: #4A5568; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Bülten Başlığı (Opsiyonel)</span>
+              <input type="text" id="newsletterTitle" placeholder="Örn: Haftalık Ekonomi Bülteni: Küresel Piyasalarda Son Durum (Boş bırakılırsa AI başlığı otomatik üretir)" style="width: 100%; padding: 10px 14px; border: 1px solid #CBD5E0; border-radius: 6px; font-family: inherit; font-size: 14px; outline: none; box-sizing: border-box;">
+            </div>
+
             <div id="itemsContainer" style="display: flex; flex-direction: column; gap: 16px;">
               
               <!-- Item Slot 1 (Link by default) -->
@@ -265,6 +271,8 @@
           return;
         }
 
+        const titleVal = document.getElementById('newsletterTitle').value.trim();
+
         // Show loading state
         cardForm.style.display = 'none';
         loading.style.display = 'block';
@@ -273,7 +281,10 @@
           const response = await fetch('/api/ai/process-newsletter', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ items })
+            body: JSON.stringify({ 
+              items,
+              title: titleVal || undefined
+            })
           });
 
           const res = await response.json();

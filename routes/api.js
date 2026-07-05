@@ -426,7 +426,7 @@ async function createCollage(imagePaths) {
 
 // AI newsletter processing endpoint (compiles multiple URLs or raw texts)
 router.post('/ai/process-newsletter', async (req, res) => {
-  const { items, urls } = req.body;
+  const { items, urls, title } = req.body;
 
   // Map legacy urls payload to hybrid items structure if needed
   let activeItems = [];
@@ -515,6 +515,12 @@ router.post('/ai/process-newsletter', async (req, res) => {
 
     console.log('[Newsletter Compiler] Groq AI ile bülten derleniyor...');
     const result = await processNewsletterContent(combinedText);
+
+    // Override title if provided by user
+    if (title && title.trim().length > 0) {
+      console.log(`[Newsletter Compiler] Başlık kullanıcı tarafından belirlendi: ${title}`);
+      result.title = title.trim();
+    }
 
     // 3. Generate collage cover image from collected images (up to 7)
     console.log(`[Newsletter Compiler] ${collageImagePaths.length} adet görsel ile kapak kolajı oluşturuluyor...`);
