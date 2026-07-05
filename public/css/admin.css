@@ -1272,7 +1272,7 @@ tbody tr:last-child td {
 
 /* Logo Styling for Image in Admin Panel */
 .sidebar-logo-img {
-  height: 30px;
+  height: 38px;
   width: auto;
   max-height: 100%;
   object-fit: contain;
@@ -1280,7 +1280,7 @@ tbody tr:last-child td {
 }
 
 .login-logo-img {
-  height: 50px;
+  height: 55px;
   width: auto;
   max-height: 100%;
   object-fit: contain;
