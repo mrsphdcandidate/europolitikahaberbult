@@ -81,25 +81,28 @@
                 <button type="button" class="btn btn-secondary btn-remove-item" disabled style="padding: 10px 16px; margin-top: 18px; background-color: #E2E8F0; color: #718096; border-color: #E2E8F0; cursor: not-allowed; border-radius: 6px;">✕</button>
               </div>
 
-              <!-- Item Slot 2 (Text by default) -->
+              <!-- Item Slot 2 (Text/Yazı by default) -->
               <div class="item-row" data-type="text" style="display: flex; gap: 8px; align-items: flex-start; background: #F8F9FA; padding: 12px; border-radius: 8px; border: 1px solid #E2E8F0;">
                 <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
-                  <span class="item-label" style="font-weight: 700; color: #4A5568; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Analiz #2 (Yazı)</span>
-                  <textarea placeholder="Kendi analizinizi veya yorumunuzu buraya girin..." rows="3" style="width: 100%; padding: 10px 14px; border: 1px solid #CBD5E0; border-radius: 6px; font-family: inherit; font-size: 14px; outline: none; resize: vertical;"></textarea>
+                  <span class="item-label" style="font-weight: 700; color: #4A5568; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Haber #2 (Yazı)</span>
+                  <textarea placeholder="Gördüğünüz veya kopyaladığınız haber metnini buraya girin..." rows="3" style="width: 100%; padding: 10px 14px; border: 1px solid #CBD5E0; border-radius: 6px; font-family: inherit; font-size: 14px; outline: none; resize: vertical;"></textarea>
                 </div>
                 <button type="button" class="btn btn-secondary btn-remove-item" style="padding: 10px 16px; margin-top: 18px; border-radius: 6px;">✕</button>
               </div>
 
             </div>
 
-            <div style="display: flex; gap: 12px; margin-top: 12px;">
+            <div style="display: flex; gap: 12px; margin-top: 12px; flex-wrap: wrap;">
               <button type="button" id="btnAddLink" class="btn btn-secondary" style="padding: 10px 20px; font-size: 13px; border-radius: 6px; background-color: #EDF2F7; border-color: #CBD5E0; color: #4A5568;">
                 ➕ Link Ekle
               </button>
               <button type="button" id="btnAddText" class="btn btn-secondary" style="padding: 10px 20px; font-size: 13px; border-radius: 6px; background-color: #EDF2F7; border-color: #CBD5E0; color: #4A5568;">
-                📝 Analiz Ekle
+                📝 Yazı Ekle
               </button>
-              <button type="submit" id="btnSubmitNewsletter" class="btn btn-primary" style="flex: 1; padding: 12px 24px; font-weight: 600; border-radius: 6px;">
+              <button type="button" id="btnAddAnalysis" class="btn btn-secondary" style="padding: 10px 20px; font-size: 13px; border-radius: 6px; background-color: #EDF2F7; border-color: #CBD5E0; color: #4A5568;">
+                ✍️ Analiz Ekle
+              </button>
+              <button type="submit" id="btnSubmitNewsletter" class="btn btn-primary" style="flex: 1; min-width: 180px; padding: 12px 24px; font-weight: 600; border-radius: 6px;">
                 🤖 AI ile Bülten Derle
               </button>
             </div>
@@ -137,6 +140,7 @@
       const container = document.getElementById('itemsContainer');
       const btnAddLink = document.getElementById('btnAddLink');
       const btnAddText = document.getElementById('btnAddText');
+      const btnAddAnalysis = document.getElementById('btnAddAnalysis');
       const form = document.getElementById('newsletterForm');
       const loading = document.getElementById('newsletterLoading');
       const cardForm = form.closest('.card');
@@ -146,8 +150,14 @@
         const rows = container.querySelectorAll('.item-row');
         rows.forEach((row, idx) => {
           const type = row.getAttribute('data-type');
-          const typeLabel = type === 'url' ? 'Link' : 'Analiz';
-          row.querySelector('.item-label').textContent = type === 'url' ? `Haber #${idx + 1} (${typeLabel})` : `Analiz #${idx + 1} (${typeLabel})`;
+          let typeLabel = 'Link';
+          if (type === 'text') typeLabel = 'Yazı';
+          if (type === 'analysis') typeLabel = 'Analiz';
+          
+          let prefix = 'Haber';
+          if (type === 'analysis') prefix = 'Analiz';
+
+          row.querySelector('.item-label').textContent = `${prefix} #${idx + 1} (${typeLabel})`;
           
           const removeBtn = row.querySelector('.btn-remove-item');
           if (rows.length === 1) {
@@ -224,6 +234,43 @@
 
         newRow.innerHTML = `
           <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+            <span class="item-label" style="font-weight: 700; color: #4A5568; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Haber (Yazı)</span>
+            <textarea placeholder="Gördüğünüz veya kopyaladığınız haber metnini buraya girin..." rows="3" required style="width: 100%; padding: 10px 14px; border: 1px solid #CBD5E0; border-radius: 6px; font-family: inherit; font-size: 14px; outline: none; resize: vertical;"></textarea>
+          </div>
+          <button type="button" class="btn btn-secondary btn-remove-item" style="padding: 10px 16px; margin-top: 18px; border-radius: 6px;">✕</button>
+        `;
+        container.appendChild(newRow);
+        
+        // Bind delete
+        newRow.querySelector('.btn-remove-item').addEventListener('click', () => {
+          newRow.remove();
+          updateSlots();
+        });
+
+        updateSlots();
+      };
+
+      // Add dynamic analysis input row
+      const addAnalysisRow = () => {
+        const rowsCount = container.querySelectorAll('.item-row').length;
+        if (rowsCount >= 10) {
+          alert('Tek seferde en fazla 10 adet haber ekleyebilirsiniz.');
+          return;
+        }
+
+        const newRow = document.createElement('div');
+        newRow.className = 'item-row';
+        newRow.setAttribute('data-type', 'analysis');
+        newRow.style.display = 'flex';
+        newRow.style.gap = '8px';
+        newRow.style.alignItems = 'flex-start';
+        newRow.style.background = '#F8F9FA';
+        newRow.style.padding = '12px';
+        newRow.style.borderRadius = '8px';
+        newRow.style.border = '1px solid #E2E8F0';
+
+        newRow.innerHTML = `
+          <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
             <span class="item-label" style="font-weight: 700; color: #4A5568; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Analiz (Yazı)</span>
             <textarea placeholder="Kendi analizinizi veya yorumunuzu buraya girin..." rows="3" required style="width: 100%; padding: 10px 14px; border: 1px solid #CBD5E0; border-radius: 6px; font-family: inherit; font-size: 14px; outline: none; resize: vertical;"></textarea>
           </div>
@@ -243,6 +290,7 @@
       // Bind button events
       btnAddLink.addEventListener('click', addLinkRow);
       btnAddText.addEventListener('click', addTextRow);
+      btnAddAnalysis.addEventListener('click', addAnalysisRow);
 
       // Bind initial delete buttons
       container.querySelectorAll('.btn-remove-item').forEach(btn => {

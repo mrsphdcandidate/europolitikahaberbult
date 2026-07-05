@@ -485,17 +485,29 @@ router.post('/ai/process-newsletter', async (req, res) => {
         } catch (err) {
           console.warn(`[Newsletter Compiler] Link kazınamadı: ${url}. Hata: ${err.message}`);
         }
-      } else {
-        // Düz metin / Yazı girdisi
+      } else if (item.type === 'analysis') {
+        // Editör Analizi girdisi
         const text = item.value.trim();
-        console.log(`[Newsletter Compiler] Metin girdisi işleniyor, uzunluk: ${text.length}`);
+        console.log(`[Newsletter Compiler] Editör analizi girdisi işleniyor, uzunluk: ${text.length}`);
         
         processedStories.push({
-          type: 'text',
-          title: `Analiz #${processedStories.length + 1}`,
+          type: 'analysis',
+          title: `Editör Analizi #${processedStories.length + 1}`,
           text: text,
           cover_image: null,
           source: 'Editör Özel'
+        });
+      } else {
+        // Düz metin / Yazı girdisi
+        const text = item.value.trim();
+        console.log(`[Newsletter Compiler] Düz metin/yazı girdisi işleniyor, uzunluk: ${text.length}`);
+        
+        processedStories.push({
+          type: 'text',
+          title: `Haber Metni #${processedStories.length + 1}`,
+          text: text,
+          cover_image: null,
+          source: 'Dış Kaynak Metni'
         });
       }
     }
@@ -508,8 +520,10 @@ router.post('/ai/process-newsletter', async (req, res) => {
     const combinedText = processedStories.map((story, idx) => {
       if (story.type === 'url') {
         return `Haber #${idx + 1} (Link):\nBaşlık: ${story.title}\nKaynak: ${story.source} (${story.url})\nİçerik:\n${story.text}`;
+      } else if (story.type === 'text') {
+        return `Haber #${idx + 1} (Kopyalanan Düz Haber Metni):\nİçerik:\n${story.text}`;
       } else {
-        return `Analiz #${idx + 1} (Editör Özel Analizi):\nİçerik:\n${story.text}`;
+        return `Editör Yorumu/Özel Analizi #${idx + 1} (Bültenin geneline veya sonuna editör yorumu/analizi olarak entegre edilmelidir):\nİçerik:\n${story.text}`;
       }
     }).join('\n\n---\n\n');
 
