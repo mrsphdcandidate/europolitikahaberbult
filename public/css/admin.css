@@ -1269,3 +1269,23 @@ tbody tr:last-child td {
 .cke_notification {
   display: none !important;
 }
+
+/* Logo Styling for SVG in Admin Panel */
+.sidebar-logo-svg {
+  height: 30px;
+  width: auto;
+  max-height: 100%;
+  display: block;
+  --logo-text-euro: #4299E1; /* Bright blue for dark sidebar */
+  --logo-text-politika: #F7FAFC; /* White/Light Grey for dark sidebar */
+}
+
+.login-logo-svg {
+  height: 50px;
+  width: auto;
+  max-height: 100%;
+  display: block;
+  margin: 0 auto;
+  --logo-text-euro: #4299E1; /* Bright blue for dark login card */
+  --logo-text-politika: #F7FAFC; /* White/Light Grey for dark login card */
+}

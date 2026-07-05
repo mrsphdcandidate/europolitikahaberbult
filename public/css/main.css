@@ -1424,3 +1424,28 @@ img {
   background-color: #1A1A1A !important;
   border-color: #2D3748 !important;
 }
+
+/* Logo Styling for SVG */
+.site-logo-svg {
+  height: 40px;
+  width: auto;
+  max-height: 100%;
+  display: block;
+  --logo-text-euro: #003399; /* EU Blue */
+  --logo-text-politika: #1A365D; /* Darker Blue */
+}
+
+/* dark mode overrides */
+[data-theme="dark"] .site-logo-svg {
+  --logo-text-euro: #4299E1; /* Brighter Blue for contrast */
+  --logo-text-politika: #F7FAFC; /* White/Light Grey */
+}
+
+.footer-logo-svg {
+  height: 35px;
+  width: auto;
+  max-height: 100%;
+  display: block;
+  --logo-text-euro: #4299E1; /* Always bright blue in dark footer */
+  --logo-text-politika: #F7FAFC; /* Always white in dark footer */
+}
